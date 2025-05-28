@@ -7,6 +7,8 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import Navbar from "@/components/Navbar";
 import LoginModal from "@/components/LoginModal";
 import SignupModal from "@/components/SignupModal";
+import Loading from "@/components/Loading";
+import LogoutPrompt from "@/components/LogoutPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,7 +43,7 @@ export default function RootLayout({
       >
         
       <div className="h-screen flex items-center justify-center text-white bg-black">
-        Checking session...
+        <Loading />
       </div>
       </body>
     </html>
@@ -60,6 +62,7 @@ export default function RootLayout({
         <Navbar />
         <LoginModal />
         <SignupModal />
+        <LogoutPrompt />
         {children}
       </body>
     </html>

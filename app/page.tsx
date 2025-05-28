@@ -5,7 +5,7 @@ export default function Home() {
     <main className="min-h-screen flex flex-col items-center justify-between bg-black text-white px-6 py-10">
       <section className="text-center mt-20">
         <h1 className="text-5xl font-bold mb-4 tracking-widest">LafdaClub</h1>
-        <p className="text-lg text-gray-300 mb-8">Merch. Mayhem. Multiplayer Madness.</p>
+        <p className="text-lg text-gray-300 mb-8">Merch. Mayhem. Madness. Mayank.</p>
         <div className="flex gap-4 justify-center">
           <a
             href="/merch"

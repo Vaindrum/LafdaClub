@@ -17,7 +17,7 @@ type AuthStore = {
   isCheckingAuth: boolean;
 
   checkAuth: () => Promise<void>;
-  signup: (data: { username: string; password: string }) => Promise<void>;
+  signup: (data: { username: string; email: string; password: string }) => Promise<void>;
   login: (data: { username: string; password: string }) => Promise<boolean>;
   logout: () => Promise<void>;
   updateProfile: (data: { username?: string; password?: string }) => Promise<void>;

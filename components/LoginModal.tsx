@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useModalStore } from "@/stores/useModalStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import GoogleLoginButton from "./GoogleLoginButton";
+import { FiX } from "react-icons/fi";
 
 export default function LoginModal() {
-  const { isLoginOpen, closeModals } = useModalStore();
+  const { isLoginOpen, closeModals, openSignup } = useModalStore();
   const { login, isLoggingIn } = useAuthStore();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -22,9 +24,18 @@ export default function LoginModal() {
     <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex justify-center items-center">
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-900 p-6 rounded-lg w-[90%] max-w-sm space-y-4 shadow-xl border border-gray-700"
+        className="relative bg-gray-900 p-6 rounded-lg w-[90%] max-w-sm space-y-4 shadow-xl border border-gray-700"
       >
-        <h2 className="text-xl font-bold text-center text-white">Login</h2>
+        {/* Close (X) button */}
+        <button
+          type="button"
+          onClick={closeModals}
+          className="absolute top-2 right-2 text-gray-400 hover:text-white cursor-pointer"
+        >
+          <FiX size={20} />
+        </button>
+
+        <h2 className="text-xl font-bold text-center text-white">Use an Existing Account...</h2>
 
         <input
           type="text"
@@ -44,22 +55,43 @@ export default function LoginModal() {
           required
         />
 
-        <div className="flex justify-between">
+        <button
+          type="submit"
+          disabled={isLoggingIn}
+          className="w-full bg-pink-600 hover:bg-pink-500 px-4 py-2 rounded text-white disabled:opacity-50 cursor-pointer"
+        >
+          {isLoggingIn ? "Logging in..." : "Login"}
+        </button>
+
+        {/* OR line */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-600" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-gray-900 px-2 text-gray-400">or</span>
+          </div>
+        </div>
+
+        {/* Centered Google button */}
+        <div className="flex justify-center">
+          <GoogleLoginButton />
+        </div>
+
+        {/* Don't have an account? */}
+        <p className="text-sm text-center text-gray-400">
+          Don&apos;t have an account?{" "}
           <button
             type="button"
-            onClick={closeModals}
-            className="text-gray-400 hover:text-white transition"
+            className="text-pink-500 hover:underline cursor-pointer"
+            onClick={() => {
+              closeModals();
+              openSignup();
+            }}
           >
-            Cancel
+            Signup
           </button>
-          <button
-            type="submit"
-            disabled={isLoggingIn}
-            className="bg-pink-600 hover:bg-pink-500 px-4 py-2 rounded text-white disabled:opacity-50"
-          >
-            {isLoggingIn ? "Logging in..." : "Login"}
-          </button>
-        </div>
+        </p>
       </form>
     </div>
   );
