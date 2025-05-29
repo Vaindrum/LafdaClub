@@ -16,18 +16,22 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="w-full bg-black text-white px-6 py-4 border-b border-gray-800 flex items-center justify-between">
-        {/* Left - Hamburger Icon on Mobile */}
+      <nav
+  className="
+    absolute top-0 left-0 w-full text-white px-6 py-4 border-b border-gray-800
+    flex items-center justify-between z-20
+  "
+>
+  <div className="absolute inset-0 bg-black/40 backdrop-blur-md z-[-1]" />
+        <div className="absolute inset-0 bg-black/0.5 backdrop-blur-sm -z-10" />
         <button className="md:hidden text-2xl" onClick={toggleMenu}>
           <FiMenu />
         </button>
 
-        {/* Center - Brand */}
         <div className="text-2xl font-bold text-pink-500">
           <Link href="/">LFDC</Link>
         </div>
 
-        {/* Right - Desktop Menu */}
         <div className="hidden md:flex space-x-6 ml-30 text-lg">
           <Link href="/" className="hover:text-pink-500 transition">Home</Link>
           <Link href="/merch" className="hover:text-pink-500 transition">Merch</Link>
@@ -36,7 +40,6 @@ export default function Navbar() {
           <Link href="/about" className="hover:text-pink-500 transition">About</Link>
         </div>
 
-        {/* Right - Auth Buttons */}
         <div className="hidden md:flex space-x-4">
           {authUser ? (
             <>
@@ -54,11 +57,18 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Sidebar overlay */}
-      <div className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity ${isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"}`} onClick={closeMenu}></div>
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity ${
+          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+        onClick={closeMenu}
+      ></div>
 
-      {/* Sidebar Menu */}
-      <div className={`fixed top-0 left-0 h-full w-64 bg-[#0c111b] z-50 transform transition-transform duration-300 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <div
+        className={`fixed top-0 left-0 h-full w-64 bg-[#0c111b] z-50 transform transition-transform duration-300 ${
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-700">
           <span className="text-white text-lg font-bold">Menu</span>
           <button onClick={closeMenu} className="text-white text-2xl">
@@ -67,11 +77,11 @@ export default function Navbar() {
         </div>
 
         <div className="flex flex-col space-y-4 p-4 text-white text-base">
-          <Link href="/" className="hover:text-pink-500 transition">Home</Link>
-          <Link href="/merch" className="hover:text-pink-500 transition">Merch</Link>
-          <Link href="/play" className="hover:text-pink-500 transition">Play</Link>
-          <Link href="/leaderboards" className="hover:text-pink-500 transition">Leaderboards</Link>
-          <Link href="/about" className="hover:text-pink-500 transition">About</Link>
+          <Link href="/" className="hover:text-pink-500 transition" onClick={closeMenu}>Home</Link>
+          <Link href="/merch" className="hover:text-pink-500 transition" onClick={closeMenu}>Merch</Link>
+          <Link href="/play" className="hover:text-pink-500 transition" onClick={closeMenu}>Play</Link>
+          <Link href="/leaderboards" className="hover:text-pink-500 transition" onClick={closeMenu}>Leaderboards</Link>
+          <Link href="/about" className="hover:text-pink-500 transition" onClick={closeMenu}>About</Link>
 
           <div className="flex flex-col border-t border-gray-700 pt-4 space-y-2">
             {authUser ? (
