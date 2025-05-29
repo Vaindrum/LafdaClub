@@ -8,9 +8,9 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen text-white px-6 py-16 relative overflow-hidden">
       {/* Glitch background overlay */}
-      <div className="absolute inset-0 opacity-20">
+      <div className="absolute inset-0 opacity-40 blur-sm">
         <Image
-          src="/bg-glitch.png"
+          src="/school.png"
           alt="glitch background"
           layout="fill"
           objectFit="cover"
@@ -18,7 +18,7 @@ export default function AboutPage() {
         />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto space-y-16">
+      <div className="relative z-10 max-w-5xl mx-auto space-y-16 mt-10">
         {/* Hero section */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -27,7 +27,7 @@ export default function AboutPage() {
           className="text-center"
         >
           <Image
-            src="/lafda-icon.png"
+            src="/lfdc.png"
             alt="LafdaClub Logo"
             width={120}
             height={120}

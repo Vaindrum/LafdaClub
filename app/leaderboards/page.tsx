@@ -13,8 +13,25 @@ export default function LeaderboardsPage() {
   const [activeTab, setActiveTab] = useState('users');
 
   return (
-    <main className="min-h-screen text-white px-6 py-10">
-      <h1 className="text-4xl font-bold text-center mb-8">Leaderboards</h1>
+    <div className="relative min-h-screen">
+      {/* Background Layer */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(/lobby.png)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          filter: "blur(10px)", // this blurs only the background
+        }}
+      />
+
+      {/* Overlay to darken if needed */}
+      <div className="absolute inset-0 bg-black/40 z-0" />
+
+      {/* Foreground Content */}
+      <main className="relative z-10 text-white px-6 py-10">
+      <h1 className="text-4xl font-bold text-center mb-8 mt-20">Leaderboards</h1>
 
       {/* Mini Navbar */}
       <div className="flex justify-center gap-4 mb-10">
@@ -40,5 +57,6 @@ export default function LeaderboardsPage() {
         {activeTab === 'announcers' && <AnnouncerLeaderboards />}
       </div>
     </main>
+    </div>
   );
 }

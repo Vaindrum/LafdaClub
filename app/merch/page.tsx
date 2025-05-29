@@ -46,36 +46,47 @@ const handleClick = (id: string) => {
  
 
   return (
-    <main className="min-h-screen text-white px-6 py-10"
-    style={{
-        backgroundImage: `url(/market.png)`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}>
-      <h1 className="text-4xl font-bold mb-10 text-center tracking-widest mt-20">Merch Store</h1>
+    <div className="relative min-h-screen">
+      {/* Background Layer */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(/market.png)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          filter: "blur(10px)", // this blurs only the background
+        }}
+      />
 
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-        {products.map((product) => (
-          <div
-            key={product._id}
-            className="bg-gray-900 rounded-xl overflow-hidden border border-gray-700 hover:scale-105 transition cursor-pointer"
-          >
-            <img
-              src={product.images[0]}
-              alt={product.name}
-              className="w-full h-64 object-cover"
-              onClick={() => handleClick(product._id)}
-            />
-            <div className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-              <p className="text-pink-400 text-lg font-bold">₹{product.price}</p>
-              <BuyButton product={product} />
+      {/* Overlay to darken if needed */}
+      <div className="absolute inset-0 bg-black/40 z-0" />
+
+      {/* Foreground Content */}
+      <main className="relative z-10 text-white px-6 py-10">
+        <h1 className="text-4xl font-bold mb-10 text-center tracking-widest mt-20">Merch Store</h1>
+
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          {products.map((product) => (
+            <div
+              key={product._id}
+              className="bg-gray-900 rounded-xl overflow-hidden border border-gray-700 hover:scale-105 transition cursor-pointer"
+            >
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                className="w-full h-64 object-cover"
+                onClick={() => handleClick(product._id)}
+              />
+              <div className="p-4">
+                <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
+                <p className="text-pink-400 text-lg font-bold">₹{product.price}</p>
+                <BuyButton product={product} />
+              </div>
             </div>
-          </div>
-        ))}
-      </section>
-
-    </main>
+          ))}
+        </section>
+      </main>
+    </div>
   );
 }

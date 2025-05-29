@@ -63,11 +63,13 @@ export default function Home() {
       }}
     >
       {/* Blur overlay */}
+        <div className="absolute inset-0 bg-black/0.5 backdrop-blur-sm z-0" />
+
       {/* <div className="absolute inset-0 bg-black/20 backdrop-blur-sm z-0" /> */}
 
       <section className="relative z-10 text-center mt-40 w-full max-w-7xl ">
-        <h1 className="text-5xl font-bold mb-4 tracking-widest">LafdaClub</h1>
-        <p className="text-lg text-gray-100 mb-8">Merch. Mayhem. Madness. Mayank.</p>
+        <h1 className="text-5xl font-bold mb-4 tracking-widest ">LafdaClub</h1>
+        <p className="text-lg text-gray-100 mb-8 drop-shadow-2xl drop-shadow-black">Merch. Mayhem. Madness. Mayank.</p>
 
         <div className="flex gap-4 justify-center mb-10">
           <a

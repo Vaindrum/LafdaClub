@@ -23,7 +23,6 @@ export default function Navbar() {
   "
 >
   <div className="absolute inset-0 bg-black/40 backdrop-blur-md z-[-1]" />
-        <div className="absolute inset-0 bg-black/0.5 backdrop-blur-sm -z-10" />
         <button className="md:hidden text-2xl" onClick={toggleMenu}>
           <FiMenu />
         </button>
