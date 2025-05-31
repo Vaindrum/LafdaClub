@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { axiosInstance } from "@/lib/axios";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Product {
   _id: string;
@@ -39,7 +40,7 @@ export default function Home() {
   const visibleCount = 4;
   const getVisibleProducts = () => {
     if (products.length === 0) return [];
-    let visible = [];
+    let visible: Product[] = [];
     for (let i = 0; i < visibleCount; i++) {
       visible.push(products[(productIndex + i) % products.length]);
     }
@@ -52,6 +53,54 @@ export default function Home() {
 
   const visibleProducts = getVisibleProducts();
 
+  /**
+   * Framer Motion variants
+   */
+  const heroVariants = {
+    hidden: { opacity: 0, y: -50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  };
+
+  const buttonContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.8 },
+    },
+  };
+
+  const buttonVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.4, ease: "easeOut" },
+    },
+    hover: { scale: 1.05 },
+    tap: { scale: 0.95 },
+  };
+
+  const carouselVariants = {
+    enter: { opacity: 0, x: 50 },
+    center: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
+    exit: { opacity: 0, x: -50, transition: { duration: 0.5, ease: "easeIn" } },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.4, ease: "easeOut" }
+    },
+    hover: { scale: 1.03 },
+    tap: { scale: 0.97 },
+  };
+
   return (
     <main
       className="relative min-h-screen flex flex-col items-center justify-between text-white px-6 py-10 overflow-hidden"
@@ -63,77 +112,144 @@ export default function Home() {
       }}
     >
       {/* Blur overlay */}
-        <div className="absolute inset-0 bg-black/0.5 backdrop-blur-sm z-0" />
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm z-0" />
 
-      {/* <div className="absolute inset-0 bg-black/20 backdrop-blur-sm z-0" /> */}
+      <section className="relative z-10 text-center mt-40 w-full max-w-7xl">
+        {/* === Hero Title & Subtitle === */}
+        <motion.h1
+          className="text-5xl font-bold mb-4 tracking-widest"
+          variants={heroVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          LafdaClub
+        </motion.h1>
+        <motion.p
+          className="text-lg text-gray-100 mb-8 drop-shadow-2xl"
+          variants={heroVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          Merch. Mayhem. Madness. Mayank.
+        </motion.p>
 
-      <section className="relative z-10 text-center mt-40 w-full max-w-7xl ">
-        <h1 className="text-5xl font-bold mb-4 tracking-widest ">LafdaClub</h1>
-        <p className="text-lg text-gray-100 mb-8 drop-shadow-2xl drop-shadow-black">Merch. Mayhem. Madness. Mayank.</p>
-
-        <div className="flex gap-4 justify-center mb-10">
-          <a
+        {/* === Buttons === */}
+        <motion.div
+          className="flex gap-4 justify-center mb-10"
+          variants={buttonContainerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.a
             href="/merch"
-            className="bg-pink-600 hover:bg-pink-500 text-white font-semibold px-6 py-3 rounded-xl transition"
+            className="bg-pink-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg"
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
           >
             Explore Merch
-          </a>
-          <a
+          </motion.a>
+          <motion.a
             href="/game"
-            className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-6 py-3 rounded-xl transition"
+            className="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-xl shadow-lg"
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
           >
             Enter Arena
-          </a>
-        </div>
+          </motion.a>
+        </motion.div>
 
-        {/* Product Carousel */}
+        {/* === Product Carousel === */}
         <div className="w-full relative mt-30">
-          <button
+          {/* Left Arrow */}
+          <motion.button
             onClick={() =>
               setProductIndex((prev) =>
                 (prev - 1 + products.length) % products.length
               )
             }
             className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full z-20"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
           >
-            <MdArrowBackIos />
-          </button>
+            <MdArrowBackIos size={24} />
+          </motion.button>
 
-          <button
+          {/* Right Arrow */}
+          <motion.button
             onClick={() =>
               setProductIndex((prev) => (prev + 1) % products.length)
             }
             className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full z-20"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
           >
-            <MdArrowForwardIos />
-          </button>
+            <MdArrowForwardIos size={24} />
+          </motion.button>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 px-8">
-            {visibleProducts.map((product) => (
-              <div
-                key={product._id}
-                className="relative rounded-lg overflow-hidden group cursor-pointer hover:scale-105 transition-transform duration-300"
-                onClick={() => {handleClick(product._id)}}
-              >
-                <img
-                  src={product.images[0]}
-                  alt={product.name}
-                  className="w-full h-40 object-cover"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-opacity duration-300" />
-                <div className="absolute bottom-2 left-3 text-white text-sm font-semibold">
-                  {product.name}
-                </div>
-                <div className="absolute bottom-2 right-3 text-pink-400 text-sm font-bold">
-                  ₹{product.price}
-                </div>
-              </div>
-            ))}
+            <AnimatePresence initial={false} mode="wait">
+              {visibleProducts.map((product) => (
+                <motion.div
+                  key={product._id + "-" + productIndex} // combine index so AnimatePresence sees a new key each slide
+                  className="relative rounded-lg overflow-hidden group cursor-pointer"
+                  variants={carouselVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  onClick={() => handleClick(product._id)}
+                >
+                  {/* Product Image */}
+                  <motion.img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-full h-40 object-cover"
+                    loading="lazy"
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                  />
+
+                  {/* Dark overlay on hover */}
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300" />
+
+                  {/* Name & Price */}
+                  <motion.div
+                    className="absolute bottom-2 left-3 text-white text-sm font-semibold"
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                  >
+                    {product.name}
+                  </motion.div>
+                  <motion.div
+                    className="absolute bottom-2 right-3 text-pink-400 text-sm font-bold"
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                  >
+                    ₹{product.price}
+                  </motion.div>
+
+                  {/* Hover scale on the whole card */}
+                  <motion.div
+                    className="absolute inset-0"
+                    variants={cardVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       </section>
 
+      {/* Footer */}
       <footer className="relative z-10 mt-32 text-sm text-gray-400 text-center">
         &copy; {new Date().getFullYear()} LafdaClub. All rights reserved.
       </footer>

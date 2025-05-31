@@ -26,13 +26,7 @@ export default function AboutPage() {
           transition={{ duration: 0.8 }}
           className="text-center"
         >
-          <Image
-            src="/lfdc.png"
-            alt="LafdaClub Logo"
-            width={120}
-            height={120}
-            className="mx-auto mb-4"
-          />
+         
           <h1 className="text-5xl font-extrabold tracking-widest text-pink-500 uppercase">
             About LafdaClub
           </h1>

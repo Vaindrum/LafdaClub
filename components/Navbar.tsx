@@ -28,7 +28,7 @@ export default function Navbar() {
         </button>
 
         <div className="text-2xl font-bold text-pink-500">
-          <Link href="/">LFDC</Link>
+          <Link href="/"><img src="logo.png" alt="LFDC" width={100} /></Link>
         </div>
 
         <div className="hidden md:flex space-x-6 ml-30 text-lg">
