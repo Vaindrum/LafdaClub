@@ -81,7 +81,13 @@
                 <div className="p-4">
                   <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
                   <p className="text-pink-400 text-lg font-bold">₹{product.price}</p>
-                  <BuyButton product={product} />
+                   {/* Instead of immediately opening Razorpay, navigate to /billing/[id] */}
+                <button
+                  onClick={() => router.push(`/billing/${product._id}`)}
+                  className="mt-4 w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-xl font-semibold transition"
+                >
+                  Buy Now
+                </button>
                 </div>
               </div>
             ))}

@@ -20,6 +20,7 @@ const sizes = ["S", "M", "L", "XL"];
 
 export default function ProductPage() {
   const { id } = useParams();
+  const quantity = 1;
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState("M");
   const [showSizeChart, setShowSizeChart] = useState(false);
@@ -34,7 +35,12 @@ export default function ProductPage() {
   }, [id]);
 
   const handleAddToCart = () => {
-    console.log("Add to Cart", product?._id, selectedSize);
+    try {
+      axiosInstance.post("cart/add", {productId: id ,quantity: quantity, size: selectedSize })
+      console.log("Added to Cart: ", product?._id, selectedSize);
+    } catch (error) {
+      console.log("Could not add to cart:", error);
+    }
   };
 
   if (!product) return <div className="text-white p-6">Loading...</div>;
