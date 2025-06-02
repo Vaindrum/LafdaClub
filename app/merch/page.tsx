@@ -1,98 +1,98 @@
-  "use client";
+"use client";
 
-  import axios from "axios";
-  import { useState, useEffect } from "react";
-  import { loadScript } from "@/lib/loadRazorpay";
-  import { axiosInstance } from "@/lib/axios";
-  import { useRouter } from "next/navigation";
-  import BuyButton from "@/components/BuyButton";
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { loadScript } from "@/lib/loadRazorpay";
+import { axiosInstance } from "@/lib/axios";
+import { useRouter } from "next/navigation";
+import BuyButton from "@/components/BuyButton";
 
-  type Product = {
-    _id: string;
-    name: string;
-    images: string[];
-    price: number;
-  };
+type Product = {
+  _id: string;
+  name: string;
+  images: string[];
+  price: number;
+};
 
-  // const dummyProducts: Product[] = [
-  //   { id: "1", name: "Lafda Tee", image: "/merch/tee.png", price: 5 },
-  //   { id: "2", name: "Pixel Cap", image: "/merch/cap.png", price: 4 },
-  //   { id: "3", name: "Glitch Hoodie", image: "/merch/hoodie.png", price: 6 },
-  // ];
+// const dummyProducts: Product[] = [
+//   { id: "1", name: "Lafda Tee", image: "/merch/tee.png", price: 5 },
+//   { id: "2", name: "Pixel Cap", image: "/merch/cap.png", price: 4 },
+//   { id: "3", name: "Glitch Hoodie", image: "/merch/hoodie.png", price: 6 },
+// ];
 
-  export default function MerchPage() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
+export default function MerchPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleClick = (id: string) => {
-      router.push(`/product/${id}`);
+    router.push(`/product/${id}`);
+  };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data } = await axiosInstance.get("product/"); // change to your backend route
+        setProducts(data); // assuming your backend returns { products: Product[] }
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load products.");
+        setLoading(false);
+      }
     };
+    fetchProducts();
+  }, []);
 
-    useEffect(() => {
-      const fetchProducts = async () => {
-        try {
-          const { data } = await axiosInstance.get("product/"); // change to your backend route
-          setProducts(data); // assuming your backend returns { products: Product[] }
-          setLoading(false);
-        } catch (err) {
-          setError("Failed to load products.");
-          setLoading(false);
-        }
-      };
-      fetchProducts();
-    }, []);
-  
 
-    return (
-      <div className="relative min-h-screen">
-        {/* Background Layer */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `url(/market.png)`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            filter: "blur(10px)", // this blurs only the background
-          }}
-        />
+  return (
+    <div className="relative min-h-screen">
+      {/* Background Layer */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(/market.png)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          filter: "blur(10px)", // this blurs only the background
+        }}
+      />
 
-        {/* Overlay to darken if needed */}
-        <div className="absolute inset-0 bg-black/40 z-0" />
+      {/* Overlay to darken if needed */}
+      <div className="absolute inset-0 bg-black/40 z-0" />
 
-        {/* Foreground Content */}
-        <main className="relative z-10 text-white px-6 py-10">
-          <h1 className="text-4xl font-bold mb-10 text-center tracking-widest mt-20">Merch Store</h1>
+      {/* Foreground Content */}
+      <main className="relative z-10 text-white px-6 py-10">
+        <h1 className="text-4xl font-bold mb-10 text-center tracking-widest mt-20">Merch Store</h1>
 
-          <section className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <div
-                key={product._id}
-                className="bg-gray-900 rounded-xl overflow-hidden border border-gray-700 hover:scale-105 transition cursor-pointer"
-              >
-                <img
-                  src={product.images[0]}
-                  alt={product.name}
-                  className="w-full h-64 object-cover"
-                  onClick={() => handleClick(product._id)}
-                />
-                <div className="p-4">
-                  <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-                  <p className="text-pink-400 text-lg font-bold">₹{product.price}</p>
-                   {/* Instead of immediately opening Razorpay, navigate to /billing/[id] */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          {products.map((product) => (
+            <div
+              key={product._id}
+              className="bg-gray-900 rounded-xl overflow-hidden border border-gray-700 hover:scale-105 transition cursor-pointer"
+            >
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                className="w-full h-64 object-cover"
+                onClick={() => handleClick(product._id)}
+              />
+              <div className="p-4">
+                <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
+                <p className="text-pink-400 text-lg font-bold">₹{product.price}</p>
+                {/* Instead of immediately opening Razorpay, navigate to /billing/[id] */}
                 <button
                   onClick={() => router.push(`/billing/${product._id}`)}
                   className="mt-4 w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-xl font-semibold transition"
                 >
                   Buy Now
                 </button>
-                </div>
               </div>
-            ))}
-          </section>
-        </main>
-      </div>
-    );
-  }
+            </div>
+          ))}
+        </section>
+      </main>
+    </div>
+  );
+}
