@@ -1,11 +1,9 @@
 "use client";
 
-import axios from "axios";
 import { useState, useEffect } from "react";
-import { loadScript } from "@/lib/loadRazorpay";
-import { axiosInstance } from "@/lib/axios";
 import { useRouter } from "next/navigation";
-import BuyButton from "@/components/BuyButton";
+import { motion } from "framer-motion";
+import { axiosInstance } from "@/lib/axios";
 
 type Product = {
   _id: string;
@@ -14,40 +12,54 @@ type Product = {
   price: number;
 };
 
-// const dummyProducts: Product[] = [
-//   { id: "1", name: "Lafda Tee", image: "/merch/tee.png", price: 5 },
-//   { id: "2", name: "Pixel Cap", image: "/merch/cap.png", price: 4 },
-//   { id: "3", name: "Glitch Hoodie", image: "/merch/hoodie.png", price: 6 },
-// ];
-
 export default function MerchPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleClick = (id: string) => {
-    router.push(`/product/${id}`);
-  };
-
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axiosInstance.get("product/"); // change to your backend route
-        setProducts(data); // assuming your backend returns { products: Product[] }
-        setLoading(false);
+        const { data } = await axiosInstance.get("product/");
+        setProducts(data);
       } catch (err) {
         setError("Failed to load products.");
+      } finally {
         setLoading(false);
       }
     };
     fetchProducts();
   }, []);
 
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await axiosInstance.post("cart/add", { productId, quantity: 1, size: "M" });
+      console.log("Added to Cart:", productId);
+    } catch (err) {
+      console.error("Could not add to cart:", err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        Loading…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-red-500 px-6">
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div className="relative min-h-screen">
-      {/* Background Layer */}
+    <div className="relative min-h-screen bg-gray-900">
+      {/* Background */}
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -55,41 +67,63 @@ export default function MerchPage() {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          filter: "blur(10px)", // this blurs only the background
+          filter: "blur(10px)",
         }}
       />
-
-      {/* Overlay to darken if needed */}
       <div className="absolute inset-0 bg-black/40 z-0" />
 
-      {/* Foreground Content */}
-      <main className="relative z-10 text-white px-6 py-10">
-        <h1 className="text-4xl font-bold mb-10 text-center tracking-widest mt-20">Merch Store</h1>
+      {/* Foreground */}
+      <main className="relative z-10 text-white px-4 md:px-6 py-8 md:py-10">
+        <h1 className="text-3xl md:text-4xl font-bold text-center mb-8 mt-16">
+          Merch Store
+        </h1>
 
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.map((product) => (
-            <div
+        <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product, idx) => (
+            <motion.div
               key={product._id}
-              className="bg-gray-900 rounded-xl overflow-hidden border border-gray-700 hover:scale-105 transition cursor-pointer"
+              className="group overflow-hidden shadow-lg hover:scale-105"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1, duration: 0.4 }}
             >
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                className="w-full h-64 object-cover"
-                onClick={() => handleClick(product._id)}
-              />
-              <div className="p-4">
-                <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-                <p className="text-pink-400 text-lg font-bold">₹{product.price}</p>
-                {/* Instead of immediately opening Razorpay, navigate to /billing/[id] */}
-                <button
-                  onClick={() => router.push(`/billing/${product._id}`)}
-                  className="mt-4 w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-xl font-semibold transition"
-                >
-                  Buy Now
-                </button>
+              {/* Image + Overlay */}
+              <div className="relative">
+                <img
+                  src={product.images[0]}
+                  alt={product.name}
+                  className="w-full h-64 object-cover cursor-pointer"
+                  onClick={() => router.push(`/product/${product._id}`)}
+                />
+                {/* Overlay shows on hover (desktop only) */}
+                <div className="hidden md:flex absolute bottom-0 left-0 right-0 bg-black/50 p-2 justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => router.push(`/billing/${product._id}`)}
+                    className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-1 rounded-lg font-semibold transition"
+                  >
+                    Buy Now
+                  </button>
+                  <button
+                    onClick={() => handleAddToCart(product._id)}
+                    className="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded-lg font-semibold transition"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
               </div>
-            </div>
+
+              {/* Card Body */}
+              <div className="py-2 flex flex-col items-start md:items-start">
+                <h2 className="text-xl   text-center md:text-left">
+                  {product.name}
+                </h2>
+                <p className="text-pink-400 text-lg font-bold mb-4">
+                  ₹{product.price}
+                </p>
+                {/* Mobile buttons */}
+                
+              </div>
+            </motion.div>
           ))}
         </section>
       </main>

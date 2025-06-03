@@ -21,7 +21,7 @@ export default function CharacterLeaderboards() {
         const { data } = await axiosInstance.get('stats/characterLeaderboards');
         setCharacters(data.topCharacters); // expecting an array sorted by rank
       } catch (err) {
-        console.error('Failed to fetch leaderboard:', err);
+        console.error('Failed to fetch characters leaderboard:', err);
       }
     };
     fetchData();
@@ -47,9 +47,9 @@ export default function CharacterLeaderboards() {
                 alt={topThree[1].name}
                 width={80}
                 height={80}
-                className="rounded-full border-4 border-slate-600 w-22 h-22"
+                className="rounded-full border-4 border-slate-500 w-22 h-22"
               />
-              <div className="absolute -top-2 -left-2 bg-slate-600 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center">
+              <div className="absolute -top-2 -left-2 bg-slate-500 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center">
                 2
               </div>
             </div>
@@ -92,9 +92,9 @@ export default function CharacterLeaderboards() {
                 alt={topThree[2].name}
                 width={70}
                 height={70}
-                className="rounded-full border-4 border-amber-900 w-20 h-20"
+                className="rounded-full border-4 border-amber-800 w-20 h-20"
               />
-              <div className="absolute -top-2 -left-2 bg-amber-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+              <div className="absolute -top-2 -left-2 bg-amber-800  text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
                 3
               </div>
             </div>
@@ -111,32 +111,32 @@ export default function CharacterLeaderboards() {
 
       {/* Rest of Leaderboard */}
       <div className="space-y-4 ">
-        {others.map((u, idx) => {
+        {others.map((c, idx) => {
           const rank = idx + 4; // since `others` starts at index 3 (rank 4)
           return (
             <div
-              key={u._id}
+              key={c._id}
               className="flex items-center justify-between bg-gray-800 px-4 py-3 rounded-lg"
             >
               <div className="flex items-center gap-3">
                 <span className="text-gray-400 w-6 text-right">{rank}</span>
                 <img
-                  src={u.image}
-                  alt={u.name}
+                  src={c.image}
+                  alt={c.name}
                   width={40}
                   height={40}
                   className="rounded-full w-10 h-10"
                 />
                 <div>
-                  <p className="font-medium">{u.name}</p>
+                  <p className="font-medium">{c.name}</p>
                   <div className='flex gap-5'>
-                  <p className="text-gray-400 text-sm">Played: {u.played}</p>
-                  <p className="text-gray-400 text-sm">Wins: {u.wins}</p>
+                  <p className="text-gray-400 text-sm">Played: {c.played}</p>
+                  <p className="text-gray-400 text-sm">Wins: {c.wins}</p>
                   </div>
                 </div>
               </div>
               <div className='flex gap-5'>
-              <p className="font-semibold">{u.winRatio * 100}%</p>
+              <p className="font-semibold">{c.winRatio * 100}%</p>
               </div>
             </div>
           );

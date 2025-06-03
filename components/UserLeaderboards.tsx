@@ -71,9 +71,9 @@ export default function UserLeaderboards() {
                 alt={topThree[1].user.username}
                 width={80}
                 height={80}
-                className="rounded-full border-4 border-slate-600 w-22 h-22"
+                className="rounded-full border-4 border-slate-500 w-22 h-22"
               />
-              <div className="absolute -top-2 -left-2 bg-slate-600 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center">
+              <div className="absolute -top-2 -left-2 bg-slate-500 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center">
                 2
               </div>
             </div>
@@ -116,9 +116,9 @@ export default function UserLeaderboards() {
                 alt={topThree[2].user.username}
                 width={70}
                 height={70}
-                className="rounded-full border-4 border-amber-900 w-20 h-20"
+                className="rounded-full border-4 border-amber-800 w-20 h-20"
               />
-              <div className="absolute -top-2 -left-2 bg-amber-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+              <div className="absolute -top-2 -left-2 bg-amber-800 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
                 3
               </div>
             </div>
@@ -134,7 +134,7 @@ export default function UserLeaderboards() {
       {/* <hr className="border-gray-700" /> */}
 
       {/* Rest of Leaderboard */}
-      <div className="space-y-4 overflow-y-auto max-h-[400px]">
+      <div className="space-y-4">
         {others.map((u, idx) => {
           const rank = idx + 4; // since `others` starts at index 3 (rank 4)
           return (
@@ -153,7 +153,7 @@ export default function UserLeaderboards() {
                 />
                 <div>
                   <p className="font-medium truncate">{u.user.username}</p>
-                  <p className="text-gray-400 text-sm">@{u.user.username}</p>
+                  <p className="text-gray-400 text-sm">w/{u.favoriteCharacter.name}</p>
                 </div>
               </div>
               <p className="font-semibold">{u.totalBattles}</p>

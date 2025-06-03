@@ -112,7 +112,7 @@ export default function Home() {
       }}
     >
       {/* Blur overlay */}
-      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm z-0" />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0" />
 
       <section className="relative z-10 text-center mt-40 w-full max-w-7xl">
         {/* === Hero Title & Subtitle === */}
