@@ -110,30 +110,30 @@ export default function CharacterLeaderboards() {
       {/* <hr className="border-gray-700" /> */}
 
       {/* Rest of Leaderboard */}
-      <div className="space-y-4 ">
+      <div className="space-y-4 md:mx-55">
         {others.map((c, idx) => {
           const rank = idx + 4; // since `others` starts at index 3 (rank 4)
           return (
             <div
               key={c._id}
-              className="flex items-center justify-between bg-gray-800 px-4 py-3 rounded-lg"
+              className="flex items-center justify-between bg-gray-800 px-2 md:px-4 py-3 rounded-lg"
             >
               <div className="flex items-center gap-3">
                 <span className="text-gray-400 w-6 text-right">{rank}</span>
                 <img
                   src={c.image}
                   alt={c.name}
-                  width={40}
-                  height={40}
-                  className="rounded-full w-10 h-10"
+                  width={45}
+                  height={45}
+                  className="rounded-full w-12 h-12"
                 />
                 <div>
                   <p className="font-medium">{c.name}</p>
-                  <div className='flex gap-5'>
                   <p className="text-gray-400 text-sm">Played: {c.played}</p>
                   <p className="text-gray-400 text-sm">Wins: {c.wins}</p>
-                  </div>
                 </div>
+              </div>
+              <div >
               </div>
               <div className='flex gap-5'>
               <p className="font-semibold">{c.winRatio * 100}%</p>

@@ -142,7 +142,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white px-6 py-10">
-      <h1 className="text-4xl font-bold mb-8 text-center">Your Cart</h1>
+      <h1 className="text-4xl font-bold mb-8 text-center mt-15">Your Cart</h1>
 
       <div className="space-y-6">
         {cartItems.map((item) => {

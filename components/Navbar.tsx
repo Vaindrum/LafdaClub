@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useModalStore } from "@/stores/useModalStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { FiMenu, FiX, FiHome, FiTag, FiPlay, FiUser, FiLogIn } from "react-icons/fi";
+import { BiSolidBox } from "react-icons/bi";
 import { FaShoppingCart } from "react-icons/fa";
 
 export default function Navbar() {
@@ -61,8 +62,13 @@ export default function Navbar() {
         <div className="hidden md:flex space-x-4">
           {authUser ? (
             <>
+            <Link href="/orders">
+                <button className="py-2 hover:text-amber-500 rounded transition cursor-pointer">
+                  <BiSolidBox size={20} />
+                </button>
+                </Link>
               <Link href="/cart">
-                <button className="px-4 py-2 hover:text-pink-500 rounded transition cursor-pointer">
+                <button className="px-2 py-2 hover:text-green-500 rounded transition cursor-pointer">
                   <FaShoppingCart size={20} />
                 </button>
               </Link>

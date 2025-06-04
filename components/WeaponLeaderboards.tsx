@@ -110,7 +110,7 @@ export default function WeaponLeaderboards() {
       {/* <hr className="border-gray-700" /> */}
 
       {/* Rest of Leaderboard */}
-      <div className="space-y-4 ">
+      <div className="space-y-4 md:mx-55">
         {others.map((w, idx) => {
           const rank = idx + 4; // since `others` starts at index 3 (rank 4)
           return (
@@ -125,14 +125,12 @@ export default function WeaponLeaderboards() {
                   alt={w.name}
                   width={40}
                   height={40}
-                  className="rounded-full w-10 h-10"
+                  className="rounded-full w-12 h-12"
                 />
                 <div>
                   <p className="font-medium">{w.name}</p>
-                  <div className='flex gap-5'>
                   <p className="text-gray-400 text-sm">Played: {w.played}</p>
                   <p className="text-gray-400 text-sm">Wins: {w.wins}</p>
-                  </div>
                 </div>
               </div>
               <div className='flex gap-5'>

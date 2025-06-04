@@ -76,7 +76,7 @@ const SelectionBox: FC<SelectableBlockProps> = ({
           onClick={() => onToggle(boxId)}
           className="absolute top-1 right-1 bg-black bg-opacity-50 rounded-full p-1 hover:bg-opacity-75 z-10"
         >
-          <MdChangeCircle size={24} color="white" className="cursor-pointer" />
+          <MdChangeCircle size={20} color="white" className="cursor-pointer" />
         </button>
       </div>
 

@@ -109,7 +109,7 @@ export default function AnnouncerLeaderboards() {
       {/* <hr className="border-gray-700" /> */}
 
       {/* Rest of Leaderboard */}
-      <div className="space-y-4 ">
+      <div className="space-y-4 md:mx-55">
         {others.map((a, idx) => {
           const rank = idx + 4; // since `others` starts at index 3 (rank 4)
           return (
@@ -124,7 +124,7 @@ export default function AnnouncerLeaderboards() {
                   alt={a.name}
                   width={40}
                   height={40}
-                  className="rounded-full w-10 h-10"
+                  className="rounded-full w-12 h-12"
                 />
                 <div>
                   <p className="font-medium truncate">{a.name}</p>

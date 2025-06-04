@@ -74,7 +74,7 @@ export default function OrdersPage() {
 
   return (
     <main className="min-h-screen bg-gray-900 text-white px-6 py-10">
-      <h1 className="text-3xl mt-20 font-bold mb-8 text-center">Your Orders</h1>
+      <h1 className="text-3xl mt-15 font-bold mb-8 text-center">Your Orders</h1>
       <div className="space-y-6 max-w-4xl mx-auto">
         {orders.map((order, idx) => (
           <motion.div

@@ -134,7 +134,7 @@ export default function UserLeaderboards() {
       {/* <hr className="border-gray-700" /> */}
 
       {/* Rest of Leaderboard */}
-      <div className="space-y-4">
+      <div className="space-y-4 md:mx-55">
         {others.map((u, idx) => {
           const rank = idx + 4; // since `others` starts at index 3 (rank 4)
           return (
@@ -149,11 +149,11 @@ export default function UserLeaderboards() {
                   alt={u.user.username}
                   width={40}
                   height={40}
-                  className="rounded-full w-10 h-10"
+                  className="rounded-full w-12 h-12"
                 />
                 <div>
                   <p className="font-medium truncate">{u.user.username}</p>
-                  <p className="text-gray-400 text-sm">w/{u.favoriteCharacter.name}</p>
+                  <p className="text-gray-400 text-sm">Fav Char: {u.favoriteCharacter.name}</p>
                 </div>
               </div>
               <p className="font-semibold">{u.totalBattles}</p>

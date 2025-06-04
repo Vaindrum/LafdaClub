@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { axiosInstance } from "@/lib/axios";
 import SelectionBox from "@/components/SelectionBox";
 import Loading from "@/components/Loading";
+import { useRouter } from "next/navigation";
 
 // ─── IMPORT FRAMER MOTION ─────────────────────────────────────────────────────
 import { motion, Variants } from "framer-motion";
@@ -37,6 +38,7 @@ const itemVariants: Variants = {
 };
 
 export default function PlayGamePage() {
+  const router = useRouter();
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const [gameData, setGameData] = useState<GameData | null>(null);
@@ -504,7 +506,7 @@ export default function PlayGamePage() {
           <button className="bg-gray-800 hover:bg-gray-700 py-2 rounded-lg font-medium">
             Your Stats
           </button>
-          <button className="bg-gray-800 hover:bg-gray-700 py-2 rounded-lg font-medium">
+          <button className="bg-gray-800 hover:bg-gray-700 py-2 rounded-lg font-medium" onClick={()=> router.push("/leaderboards")}>
             Global Leaderboard
           </button>
         </div>

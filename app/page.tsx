@@ -37,7 +37,26 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [products]);
 
-  const visibleCount = 4;
+  const [visibleCount, setVisibleCount] = useState(4);
+
+  useEffect(() => {
+    const updateVisibleCount = () => {
+      if (window.innerWidth < 768) {
+        setVisibleCount(2); // Mobile
+      } else {
+        setVisibleCount(4); // Desktop
+      }
+    };
+
+    updateVisibleCount();
+    window.addEventListener("resize", updateVisibleCount);
+    return () => window.removeEventListener("resize", updateVisibleCount);
+  }, []);
+
+  const handleClick = (id: string) => {
+    router.push(`/product/${id}`);
+  };
+
   const getVisibleProducts = () => {
     if (products.length === 0) return [];
     let visible: Product[] = [];
@@ -45,10 +64,6 @@ export default function Home() {
       visible.push(products[(productIndex + i) % products.length]);
     }
     return visible;
-  };
-
-  const handleClick = (id: string) => {
-    router.push(`/product/${id}`);
   };
 
   const visibleProducts = getVisibleProducts();
@@ -92,8 +107,8 @@ export default function Home() {
 
   const cardVariants = {
     hidden: { opacity: 0, scale: 0.9 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       scale: 1,
       transition: { duration: 0.4, ease: "easeOut" }
     },
@@ -160,8 +175,10 @@ export default function Home() {
           </motion.a>
         </motion.div>
 
+{/* <div className="absolute font-semibold scale-150 left-12">Top Picks</div> */}
         {/* === Product Carousel === */}
         <div className="w-full relative mt-30">
+          
           {/* Left Arrow */}
           <motion.button
             onClick={() =>
@@ -173,7 +190,7 @@ export default function Home() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            <MdArrowBackIos size={24} />
+            <MdArrowBackIos size={20} />
           </motion.button>
 
           {/* Right Arrow */}
@@ -185,15 +202,15 @@ export default function Home() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            <MdArrowForwardIos size={24} />
+            <MdArrowForwardIos size={20} />
           </motion.button>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 px-8 -mt-10">
             <AnimatePresence initial={false} mode="wait">
               {visibleProducts.map((product) => (
                 <motion.div
                   key={product._id + "-" + productIndex} // combine index so AnimatePresence sees a new key each slide
-                  className="relative rounded-lg overflow-hidden group cursor-pointer"
+                  className="relative overflow-hidden group cursor-pointer hover:scale-110"
                   variants={carouselVariants}
                   initial="enter"
                   animate="center"
@@ -217,7 +234,7 @@ export default function Home() {
 
                   {/* Name & Price */}
                   <motion.div
-                    className="absolute bottom-2 left-3 text-white text-sm font-semibold"
+                    className="absolute bottom-2 left-3 text-white text-sm font-semibold max-w-[50%] truncate"
                     variants={cardVariants}
                     initial="hidden"
                     animate="visible"
@@ -231,17 +248,11 @@ export default function Home() {
                     initial="hidden"
                     animate="visible"
                     exit="hidden"
-                  >
+                    >
                     ₹{product.price}
                   </motion.div>
 
-                  {/* Hover scale on the whole card */}
-                  <motion.div
-                    className="absolute inset-0"
-                    variants={cardVariants}
-                    whileHover="hover"
-                    whileTap="tap"
-                  />
+                  
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -249,10 +260,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 mt-32 text-sm text-gray-400 text-center">
-        &copy; {new Date().getFullYear()} LafdaClub. All rights reserved.
-      </footer>
     </main>
   );
 }

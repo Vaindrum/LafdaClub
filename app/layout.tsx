@@ -37,8 +37,8 @@ export default function RootLayout({
 
   if (isCheckingAuth) {
     return (
-      <html lang="en">
-      <body
+      <html lang="en" suppressHydrationWarning>
+      <body 
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         
@@ -55,10 +55,9 @@ export default function RootLayout({
   //   fetchUser();
   // }, [fetchUser]);
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        
       >
         <Navbar />
         <LoginModal />

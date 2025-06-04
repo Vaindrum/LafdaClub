@@ -50,12 +50,12 @@ export default function UserStatsPage() {
 
   return (
     <div className="p-6 text-white">
-      <h1 className="text-3xl font-bold mt-15 mb-6">Your Stats</h1>
+      <h1 className="text-3xl font-bold mt-15 mb-6">{username}'s Stats</h1>
         <div className="bg-white/5 px-8 py-4 w-fit rounded-2xl shadow-md flex gap-5">
           <h2 className="text-lg font-semibold mb-1">Total Battles:</h2>
           <p className="text-2xl">{stats.totalBattles}</p>
         </div>
-      <div className="grid grid-cols-4 py-5 md:grid-cols-6 gap-6">
+      <div className="grid grid-cols-2 py-5 md:grid-cols-6 gap-6">
 
          <div className="bg-white/5 p-4 rounded-2xl shadow-md flex gap-3">
         <div className="relative hover:shadow-lg transition">
@@ -107,13 +107,13 @@ export default function UserStatsPage() {
                 <div>
                   <strong>{battle.character1?.name}</strong> vs <strong>{battle.character2?.name}</strong>
                 </div>
-                <div className="text-sm text-gray-400 flex gap-5">
-                  <p>Winner: {battle.winner?.name || "N/A"}</p>
+                <div className="text-sm text-gray-400 flex-row md:flex gap-5">
                   <p>Player 1: {battle.character1.name || "N/A"}</p>
                   <p>Weapon 1: {battle.weapon1.name || "N/A"}</p>
                   <p>Player 2: {battle.character2.name || "N/A"}</p>
                   <p>Weapon 2: {battle.weapon2.name || "N/A"}</p>
                   <p>Stage: {battle.stage.name || "N/A"}</p>
+                  <p className="text-gray-200">Winner: {battle.winner?.name || "N/A"}</p>
                 </div>
               </li>
             ))}

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { FaTwitter, FaInstagram, FaDiscord } from "react-icons/fa";
 
 export default function AboutPage() {
   return (
@@ -31,7 +32,7 @@ export default function AboutPage() {
             About LafdaClub
           </h1>
           <p className="text-lg mt-4 max-w-2xl mx-auto text-gray-300">
-            Where pixels rebel, chaos thrives, and style tells stories. Welcome to the movement.
+            Merch. Mayhem. Madness. Mayank.
           </p>
         </motion.div>
 
@@ -41,7 +42,7 @@ export default function AboutPage() {
             {
               title: "What is LafdaClub?",
               text:
-                "LafdaClub isn’t just a brand — it’s a movement for chaos lovers, glitch-dwellers, and pixel rebels. Born from gaming, late-night rants, and bold expression, we make things loud, weird, and real.",
+                "LafdaClub is a brand. LafdaClub is the man of the people. I love LafdaClub. Wooooooooooo.",
             },
             {
               title: "Our Merch",
@@ -56,17 +57,17 @@ export default function AboutPage() {
             {
               title: "Quality Assurance",
               text:
-                "Our merch is built to last. Premium fabrics, vivid prints, stitched to survive. No fast fashion — just durable streetwear with soul.",
+                "Our merch is built to last. Reliable fabrics, vivid prints to survive. No fast fashion — just durable streetwear with soul.",
             },
             {
               title: "The Club",
               text:
-                "LafdaClub is a crew of artists, gamers, coders, and internet kids who never grew up. You’re one of us now. Let’s make lafdas together.",
+                "LafdaClub is a crew of internet kids who never grew up. You’re one of us now.",
             },
             {
               title: "Built Different",
               text:
-                "We’re not selling hype. We’re building a universe. One pixel, one glitch, one drop at a time. Welcome to LafdaClub.",
+                "We’re selling hype. One pixel, one drop at a time. Welcome to LafdaClub.",
             },
           ].map((section, idx) => (
             <motion.section
@@ -116,12 +117,12 @@ export default function AboutPage() {
         {/* Socials */}
         <div className="text-center pt-10 border-t border-gray-700">
           <h3 className="text-xl font-semibold text-pink-300 mb-2">Join the Club</h3>
-          <p className="text-gray-400 mb-4">Follow us and share your chaos</p>
+          <p className="text-gray-400 mb-4">Follow us on our socials</p>
           <div className="flex justify-center gap-6">
             {[
-              { icon: "🐦", name: "Twitter", href: "https://twitter.com/lafdaclub" },
-              { icon: "📸", name: "Instagram", href: "https://instagram.com/lafdaclub" },
-              { icon: "🎮", name: "Discord", href: "https://discord.gg/lafdaclub" },
+              { icon: <FaTwitter/>,  href: "https://twitter.com/lafdaclub" },
+              { icon: <FaInstagram/>,  href: "https://instagram.com/lafdaclub" },
+              { icon: <FaDiscord/>,  href: "https://discord.gg/lafdaclub" },
             ].map((social, i) => (
               <Link
                 key={i}
@@ -129,7 +130,7 @@ export default function AboutPage() {
                 target="_blank"
                 className="text-pink-400 hover:text-pink-300 text-lg"
               >
-                {social.icon} {social.name}
+                {social.icon}
               </Link>
             ))}
           </div>
