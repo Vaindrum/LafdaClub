@@ -3,8 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
-import { useAuthStore } from "@/stores/useAuthStore"; // or your own auth hook/store
-import { FiThumbsUp, FiThumbsDown, FiTrash2, FiFlag } from "react-icons/fi";
+import { useAuthStore } from "@/stores/useAuthStore";
+import {
+  FiThumbsUp,
+  FiThumbsDown,
+  FiTrash2,
+  FiFlag,
+  FiSend,
+} from "react-icons/fi";
 import { motion } from "framer-motion";
 
 type Product = {
@@ -16,25 +22,42 @@ type Product = {
   images: string[];
 };
 
+type Comment = {
+  _id: string;
+  user: { _id: string; username: string };
+  text: string;
+  likes: string[];
+  dislikes: string[];
+};
+
 type Review = {
   _id: string;
   user: { _id: string; username: string };
   text: string;
   rating: number;
-  likes: string[];    // array of user IDs who liked
-  dislikes: string[]; // array of user IDs who disliked
+  likes: string[];
+  dislikes: string[];
+  comments: Comment[];
 };
 
 export default function ProductPage() {
   const router = useRouter();
   const { id } = useParams(); // productId
-  const { authUser } = useAuthStore(); // { _id, username }
+  const { authUser } = useAuthStore(); // { _id, username } or null
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // New state for comment inputs, keyed by reviewId
+  const [commentTextByReview, setCommentTextByReview] = useState<{
+    [reviewId: string]: string;
+  }>({});
+
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
-  const [showReportPrompt, setShowReportPrompt] = useState<{ reviewId: string } | null>(null);
+  const [showReportPrompt, setShowReportPrompt] = useState<
+    { reviewId: string } | null
+  >(null);
   const [reportReason, setReportReason] = useState("");
 
   // 1) Fetch product data
@@ -50,11 +73,11 @@ export default function ProductPage() {
     fetchProduct();
   }, [id]);
 
-  // 2) Fetch reviews for this product
+  // 2) Fetch reviews (with comments) for this product
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const { data } = await axiosInstance.get(`reviews/${id}`);
+        const { data } = await axiosInstance.get(`review/reviews/${id}`);
         setReviews(data);
       } catch (err) {
         console.error("Error fetching reviews:", err);
@@ -68,16 +91,19 @@ export default function ProductPage() {
   // 3) Submit a new review
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!authUser) {
+      alert("Please log in to submit a review.");
+      return;
+    }
     if (!reviewText.trim()) return;
 
     try {
-      await axiosInstance.post("reviews", {
+      await axiosInstance.post("review/create", {
         productId: id,
         text: reviewText,
         rating: reviewRating,
       });
-      // Refresh reviews after creating
-      const { data } = await axiosInstance.get(`reviews/${id}`);
+      const { data } = await axiosInstance.get(`review/reviews/${id}`);
       setReviews(data);
       setReviewText("");
       setReviewRating(5);
@@ -87,31 +113,46 @@ export default function ProductPage() {
   };
 
   // 4) Delete a review
-  const handleDeleteReview = async (reviewId: string) => {
+  const handleDeleteReview = async (reviewId: string, authorId: string) => {
+    if (!authUser) {
+      alert("Please log in to delete your review.");
+      return;
+    }
+    if (authUser._id !== authorId) {
+      alert("You can only delete your own reviews.");
+      return;
+    }
     try {
-      await axiosInstance.delete(`reviews/${reviewId}`);
+      await axiosInstance.delete(`review/delete/${reviewId}`);
       setReviews((prev) => prev.filter((r) => r._id !== reviewId));
     } catch (err) {
       console.error("Error deleting review:", err);
     }
   };
 
-  // 5) Like / dislike toggles
+  // 5) Like / dislike toggles for review
   const handleToggleLike = async (reviewId: string) => {
+    if (!authUser) {
+      alert("Please log in to like reviews.");
+      return;
+    }
     try {
-      await axiosInstance.post(`reviews/${reviewId}/like`);
+      await axiosInstance.post(`review/like/${reviewId}`);
       setReviews((prev) =>
-        prev.map((r) =>
-          r._id === reviewId
-            ? {
-                ...r,
-                likes: r.likes.includes(authUser!._id)
-                  ? r.likes.filter((uid) => uid !== authUser!._id)
-                  : [...r.likes, authUser!._id],
-                dislikes: r.dislikes.filter((uid) => uid !== authUser!._id),
-              }
-            : r
-        )
+        prev.map((r) => {
+          if (r._id !== reviewId) return r;
+          const liked = r.likes.includes(authUser._id);
+          const disliked = r.dislikes.includes(authUser._id);
+          return {
+            ...r,
+            likes: liked
+              ? r.likes.filter((uid) => uid !== authUser._id)
+              : [...r.likes, authUser._id],
+            dislikes: disliked
+              ? r.dislikes.filter((uid) => uid !== authUser._id)
+              : r.dislikes,
+          };
+        })
       );
     } catch (err) {
       console.error("Error toggling like:", err);
@@ -119,20 +160,25 @@ export default function ProductPage() {
   };
 
   const handleToggleDislike = async (reviewId: string) => {
+    if (!authUser) {
+      alert("Please log in to dislike reviews.");
+      return;
+    }
     try {
-      await axiosInstance.post(`reviews/${reviewId}/dislike`);
+      await axiosInstance.post(`review/dislike/${reviewId}`);
       setReviews((prev) =>
-        prev.map((r) =>
-          r._id === reviewId
-            ? {
-                ...r,
-                dislikes: r.dislikes.includes(authUser!._id)
-                  ? r.dislikes.filter((uid) => uid !== authUser!._id)
-                  : [...r.dislikes, authUser!._id],
-                likes: r.likes.filter((uid) => uid !== authUser!._id),
-              }
-            : r
-        )
+        prev.map((r) => {
+          if (r._id !== reviewId) return r;
+          const liked = r.likes.includes(authUser._id);
+          const disliked = r.dislikes.includes(authUser._id);
+          return {
+            ...r,
+            dislikes: disliked
+              ? r.dislikes.filter((uid) => uid !== authUser._id)
+              : [...r.dislikes, authUser._id],
+            likes: liked ? r.likes.filter((uid) => uid !== authUser._id) : r.likes,
+          };
+        })
       );
     } catch (err) {
       console.error("Error toggling dislike:", err);
@@ -141,9 +187,13 @@ export default function ProductPage() {
 
   // 6) Report a review
   const handleSubmitReport = async (reviewId: string) => {
+    if (!authUser) {
+      alert("Please log in to report reviews.");
+      return;
+    }
     if (!reportReason.trim()) return;
     try {
-      await axiosInstance.post("reviews/report", { reviewId, reason: reportReason });
+      await axiosInstance.post("review/report", { reviewId, reason: reportReason });
       setShowReportPrompt(null);
       setReportReason("");
       alert("Review reported.");
@@ -152,13 +202,102 @@ export default function ProductPage() {
     }
   };
 
-  if (!product) return <div className="text-white p-6">Loading product…</div>;
+  // 7) Submit a comment under a review
+  const handleSubmitComment = async (reviewId: string) => {
+    if (!authUser) {
+      alert("Please log in to comment.");
+      return;
+    }
+    const text = commentTextByReview[reviewId]?.trim();
+    if (!text) return;
+
+    try {
+      await axiosInstance.post("comment/create", { reviewId, text });
+      // Refresh reviews (which include comments)
+      const { data } = await axiosInstance.get(`review/reviews/${id}`);
+      setReviews(data);
+      // Clear the input for this review
+      setCommentTextByReview((prev) => ({ ...prev, [reviewId]: "" }));
+    } catch (err) {
+      console.error("Error creating comment:", err);
+    }
+  };
+
+  // 8) Delete a comment
+  const handleDeleteComment = async (
+    commentId: string,
+    commentAuthorId: string
+  ) => {
+    if (!authUser) {
+      alert("Please log in to delete comments.");
+      return;
+    }
+    if (authUser._id !== commentAuthorId) {
+      alert("You can only delete your own comments.");
+      return;
+    }
+    try {
+      await axiosInstance.delete(`comment/${commentId}`);
+      const { data } = await axiosInstance.get(`review/reviews/${id}`);
+      setReviews(data);
+    } catch (err) {
+      console.error("Error deleting comment:", err);
+    }
+  };
+
+  // 9) Report a comment
+  const handleReportComment = async (commentId: string) => {
+    if (!authUser) {
+      alert("Please log in to report comments.");
+      return;
+    }
+    const reason = prompt("Reason for reporting:");
+    if (!reason?.trim()) return;
+    try {
+      await axiosInstance.post("comment/report", { commentId, reason });
+      alert("Comment reported.");
+    } catch (err) {
+      console.error("Error reporting comment:", err);
+    }
+  };
+
+  // 10) Like/dislike a comment
+  const handleToggleLikeComment = async (commentId: string) => {
+    if (!authUser) {
+      alert("Please log in to like comments.");
+      return;
+    }
+    try {
+      await axiosInstance.post(`comment/like/${commentId}`);
+      const { data } = await axiosInstance.get(`review/reviews/${id}`);
+      setReviews(data);
+    } catch (err) {
+      console.error("Error liking comment:", err);
+    }
+  };
+
+  const handleToggleDislikeComment = async (commentId: string) => {
+    if (!authUser) {
+      alert("Please log in to dislike comments.");
+      return;
+    }
+    try {
+      await axiosInstance.post(`comment/dislike/${commentId}`);
+      const { data } = await axiosInstance.get(`review/reviews/${id}`);
+      setReviews(data);
+    } catch (err) {
+      console.error("Error disliking comment:", err);
+    }
+  };
+
+  if (!product)
+    return <div className="text-white p-6">Loading product…</div>;
 
   return (
     <main className="min-h-screen bg-black text-white px-6 py-10">
       {/* Product Info */}
-      <div className="grid md:grid-cols-2 gap-12 mb-16">
-        {/* Image Carousel */}
+      <div className="grid md:grid-cols-2 gap-12 mt-20 mb-16">
+        {/* Image */}
         <div>
           <img
             src={product.images[0]}
@@ -172,19 +311,25 @@ export default function ProductPage() {
                 src={img}
                 alt={`thumb-${i}`}
                 className={`h-16 w-16 rounded border cursor-pointer ${
-                  img === product.images[0] ? "border-pink-500" : "border-gray-600"
+                  img === product.images[0]
+                    ? "border-pink-500"
+                    : "border-gray-600"
                 }`}
               />
             ))}
           </div>
         </div>
 
-        {/* Product Details */}
+        {/* Details */}
         <div className="space-y-6">
           <h1 className="text-3xl font-bold">{product.name}</h1>
-          <p className="text-pink-400 text-2xl font-semibold">₹{product.price}</p>
+          <p className="text-pink-400 text-2xl font-semibold">
+            ₹{product.price}
+          </p>
           <p className="text-gray-400">{product.description}</p>
-          <p className="text-sm text-gray-500">Category: {product.category}</p>
+          <p className="text-sm text-gray-500">
+            Category: {product.category}
+          </p>
           <div className="flex gap-4 mt-4">
             <button
               onClick={() => router.push(`/billing/${product._id}`)}
@@ -193,7 +338,12 @@ export default function ProductPage() {
               Buy Now
             </button>
             <button
-              onClick={() => axiosInstance.post("cart/add", { productId: product._id, quantity: 1 })}
+              onClick={() =>
+                axiosInstance.post("cart/add", {
+                  productId: product._id,
+                  quantity: 1,
+                })
+              }
               className="border border-pink-600 hover:bg-pink-600 text-white px-6 py-2 rounded-lg font-semibold transition"
             >
               Add to Cart
@@ -206,105 +356,275 @@ export default function ProductPage() {
       <section className="mt-20">
         <h2 className="text-2xl font-bold mb-6">User Reviews</h2>
 
-        {/* Loading State */}
         {loading && <p className="text-gray-400">Loading reviews…</p>}
 
-        {/* Review List */}
         {!loading && reviews.length === 0 && (
-          <p className="text-gray-400">No reviews yet. Be the first to review!</p>
+          <p className="text-gray-400">
+            No reviews yet. Be the first to review!
+          </p>
         )}
-        <div className="space-y-6">
+
+        {/* Review List */}
+        <div className="space-y-8">
           {reviews.map((r) => {
             const isAuthor = authUser?._id === r.user._id;
-            const userLiked = r.likes.includes(authUser!._id);
-            const userDisliked = r.dislikes.includes(authUser!._id);
+            const userLiked = authUser ? r.likes.includes(authUser._id) : false;
+            const userDisliked = authUser
+              ? r.dislikes.includes(authUser._id)
+              : false;
 
             return (
               <motion.div
                 key={r._id}
-                className="bg-gray-800 p-4 rounded-xl border border-gray-700"
+                className="bg-gray-800 p-6 rounded-xl border border-gray-700"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
+                {/* Review Header */}
                 <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold">{r.user.username}</p>
+                  <div className="cursor-pointer" onClick={() => {router.push(`/review/${r._id}`)}}>
+                    <p className="font-semibold"></p>
                     <p className="flex items-center text-yellow-400">
-                      {"⭐".repeat(r.rating)}{" "}
-                      <span className="text-gray-400 ml-2">({r.rating}/5)</span>
+                      {"⭐".repeat(r.rating)}
+                      <span className="text-gray-400 ml-2">
+                        ({r.rating}/5)
+                      </span>
                     </p>
                   </div>
                   <div className="flex gap-4 text-gray-400">
-                    {/* Like Button */}
-                    <button onClick={() => handleToggleLike(r._id)} className="flex items-center gap-1">
-                      <FiThumbsUp className={userLiked ? "text-pink-500" : ""} />
+                    {/* Like Review */}
+                    <button
+                      onClick={() => handleToggleLike(r._id)}
+                      className="flex items-center gap-1"
+                    >
+                      <FiThumbsUp
+                        className={userLiked ? "text-pink-500" : ""}
+                      />
                       <span>{r.likes.length}</span>
                     </button>
-                    {/* Dislike Button */}
-                    <button onClick={() => handleToggleDislike(r._id)} className="flex items-center gap-1">
-                      <FiThumbsDown className={userDisliked ? "text-pink-500" : ""} />
+
+                    {/* Dislike Review */}
+                    <button
+                      onClick={() => handleToggleDislike(r._id)}
+                      className="flex items-center gap-1"
+                    >
+                      <FiThumbsDown
+                        className={userDisliked ? "text-pink-500" : ""}
+                      />
                       <span>{r.dislikes.length}</span>
                     </button>
-                    {/* Report Button */}
-                    <button onClick={() => setShowReportPrompt({ reviewId: r._id })}>
+
+                    {/* Report Review */}
+                    <button
+                      onClick={() => {
+                        if (!authUser) {
+                          alert("Please log in to report reviews.");
+                        } else {
+                          setShowReportPrompt({ reviewId: r._id });
+                        }
+                      }}
+                    >
                       <FiFlag />
                     </button>
-                    {/* Delete Button (only if author) */}
+
+                    {/* Delete Review */}
                     {isAuthor && (
-                      <button onClick={() => handleDeleteReview(r._id)} className="ml-2">
+                      <button
+                        onClick={() =>
+                          handleDeleteReview(r._id, r.user._id)
+                        }
+                        className="ml-2"
+                      >
                         <FiTrash2 />
                       </button>
                     )}
                   </div>
                 </div>
+
+                {/* Review Text */}
                 <p className="mt-2 text-gray-200">{r.text}</p>
+
+                {/* Comments Section */}
+                <div className="mt-4 border-t border-gray-700 pt-4 space-y-4">
+                  {r.comments.map((c) => {
+                    const isCommentAuthor =
+                      authUser?._id === c.user._id;
+                    const commentLiked = authUser
+                      ? c.likes.includes(authUser._id)
+                      : false;
+                    const commentDisliked = authUser
+                      ? c.dislikes.includes(authUser._id)
+                      : false;
+
+                    return (
+                      <div
+                        key={c._id}
+                        className="bg-gray-700 p-4 rounded-xl"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold text-sm">
+                              {c.user.username}
+                            </p>
+                            <p className="mt-1 text-gray-300 text-sm">
+                              {c.text}
+                            </p>
+                          </div>
+                          <div className="flex gap-3 text-gray-400">
+                            {/* Like Comment */}
+                            <button
+                              onClick={() =>
+                                handleToggleLikeComment(c._id)
+                              }
+                              className="flex items-center gap-1 text-sm"
+                            >
+                              <FiThumbsUp
+                                className={
+                                  commentLiked ? "text-pink-500" : ""
+                                }
+                              />
+                              <span>{c.likes.length}</span>
+                            </button>
+
+                            {/* Dislike Comment */}
+                            <button
+                              onClick={() =>
+                                handleToggleDislikeComment(c._id)
+                              }
+                              className="flex items-center gap-1 text-sm"
+                            >
+                              <FiThumbsDown
+                                className={
+                                  commentDisliked ? "text-pink-500" : ""
+                                }
+                              />
+                              <span>{c.dislikes.length}</span>
+                            </button>
+
+                            {/* Report Comment */}
+                            <button
+                              onClick={() => handleReportComment(c._id)}
+                              className="text-sm"
+                            >
+                              <FiFlag />
+                            </button>
+
+                            {/* Delete Comment */}
+                            {isCommentAuthor && (
+                              <button
+                                onClick={() =>
+                                  handleDeleteComment(c._id, c.user._id)
+                                }
+                                className="ml-1 text-sm"
+                              >
+                                <FiTrash2 />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Add Comment Input */}
+                  {authUser ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={commentTextByReview[r._id] || ""}
+                        onChange={(e) =>
+                          setCommentTextByReview((prev) => ({
+                            ...prev,
+                            [r._id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Write a comment…"
+                        className="flex-1 bg-gray-800 px-3 py-2 rounded-lg"
+                      />
+                      <button
+                        onClick={() => handleSubmitComment(r._id)}
+                        className="text-pink-500 hover:text-pink-400 transition"
+                      >
+                        <FiSend size={20} />
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-gray-400 text-sm">
+                      <a
+                        href="/login"
+                        className="text-pink-500 underline"
+                      >
+                        Log in
+                      </a>{" "}
+                      to comment.
+                    </p>
+                  )}
+                </div>
               </motion.div>
             );
           })}
         </div>
 
         {/* Create Review Form */}
-        <motion.div
-          className="mt-10 bg-gray-800 p-6 rounded-xl border border-gray-700"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.4 }}
-        >
-          <h3 className="text-xl font-semibold mb-4">Write a Review</h3>
-          <form onSubmit={handleSubmitReview} className="space-y-4">
-            <div>
-              <label className="block mb-1">Rating (1–5):</label>
-              <select
-                value={reviewRating}
-                onChange={(e) => setReviewRating(+e.target.value)}
-                className="bg-gray-700 px-3 py-2 rounded-lg w-full"
-              >
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block mb-1">Your Review:</label>
-              <textarea
-                value={reviewText}
-                onChange={(e) => setReviewText(e.target.value)}
-                rows={4}
-                className="w-full bg-gray-700 px-3 py-2 rounded-lg"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-2 rounded-lg font-semibold transition"
+        {authUser ? (
+          <motion.div
+            className="mt-10 bg-gray-800 p-6 rounded-xl border border-gray-700"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+          >
+            <h3 className="text-xl font-semibold mb-4">
+              Write a Review
+            </h3>
+            <form
+              onSubmit={handleSubmitReview}
+              className="space-y-4"
             >
-              Submit Review
-            </button>
-          </form>
-        </motion.div>
+              <div>
+                <label className="block mb-1">Rating (1–5):</label>
+                <select
+                  value={reviewRating}
+                  onChange={(e) =>
+                    setReviewRating(+e.target.value)
+                  }
+                  className="bg-gray-700 px-3 py-2 rounded-lg w-full"
+                >
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1">
+                  Your Review:
+                </label>
+                <textarea
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  rows={4}
+                  className="w-full bg-gray-700 px-3 py-2 rounded-lg"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-2 rounded-lg font-semibold transition"
+              >
+                Submit Review
+              </button>
+            </form>
+          </motion.div>
+        ) : (
+          <p className="mt-6 text-gray-400">
+            <a href="/login" className="text-pink-500 underline">
+              Log in
+            </a>{" "}
+            to write a review.
+          </p>
+        )}
       </section>
 
       {/* Report Prompt Modal */}
@@ -316,14 +636,16 @@ export default function ProductPage() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <h4 className="text-lg font-semibold mb-3">Report Review</h4>
+            <h4 className="text-lg font-semibold mb-3">
+              Report Review
+            </h4>
             <textarea
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
               rows={3}
               className="w-full bg-gray-800 px-3 py-2 rounded-lg mb-4"
               placeholder="Reason for reporting"
-            ></textarea>
+            />
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowReportPrompt(null)}

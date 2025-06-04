@@ -22,7 +22,7 @@ export default function SelectionGrid({ items, type, onSelect }: SelectionGridPr
   const gridCols = isAnnouncer ? 'grid-cols-3' : 'grid-cols-4';
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <div className={`grid ${gridCols} gap-4`}>
         {items.map((item) => (
           <div
@@ -44,9 +44,9 @@ export default function SelectionGrid({ items, type, onSelect }: SelectionGridPr
         ))}
       </div>
 
-      {/* Tooltip/Dialog */}
+      {/* Tooltip/Dialog for hovered item */}
       {hoveredItem && (
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mt-2 w-full p-4 rounded-md bg-gray-900 shadow-xl z-50">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-full p-4 rounded-md bg-gray-900 shadow-xl z-50">
           <h3 className="text-sm font-semibold text-white">{hoveredItem.name}</h3>
           <p className="text-xs text-gray-300">{hoveredItem.description}</p>
         </div>

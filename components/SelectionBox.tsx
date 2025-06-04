@@ -1,10 +1,9 @@
 // components/SelectionBox.tsx
 'use client';
 
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { MdChangeCircle } from 'react-icons/md';
 import SelectionGrid from './SelectionGrid';
-import Image from 'next/image';
 
 type GridItem = {
   _id: string;
@@ -15,21 +14,23 @@ type GridItem = {
 
 type SelectableBlockProps = {
   label?: string;
-  name?: string,
+  name?: string;
   image?: string;
   items: GridItem[];
   type: 'character' | 'weapon' | 'stage' | 'announcer';
   selectedId?: string;
   onChange: (item: GridItem) => void;
 
-  // NEW: sizeClass controls width/height of this box’s image container
+  // sizeClass controls the width/height of the image container
   sizeClass?: string;
 
-  // Controls which grid is open (lifted state from parent)
+  // Controls which grid is open
   boxId: string;
   isOpen: boolean;
   onToggle: (boxId: string) => void;
-  placement: 'left' | 'right';
+
+  // placement: "left" | "right" for desktop popover, or "center" for full-screen mobile.
+  placement: 'left' | 'right' | 'center';
 };
 
 const SelectionBox: FC<SelectableBlockProps> = ({
@@ -40,42 +41,81 @@ const SelectionBox: FC<SelectableBlockProps> = ({
   type,
   onChange,
   selectedId,
-  sizeClass = 'w-40 h-40', // default size if not provided
+  sizeClass = 'w-40 h-40',
   boxId,
   isOpen,
   onToggle,
   placement,
 }) => {
+  // Prevent scrolling when full-screen grid is open
+  useEffect(() => {
+    if (isOpen && placement === 'center') {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [isOpen, placement]);
+
   return (
     <div className="relative w-fit">
-      <div className="text-xl mb-2">{label}</div>
+      {/* Label (e.g. "Player 1", etc.) */}
+      {label && <div className="text-md sm:text-sm md:text-md lg:text-xl mb-2">{label}</div>}
 
+      {/* The box that shows current selection */}
       <div className={`relative ${sizeClass} rounded-lg overflow-hidden bg-gray-700`}>
         {image ? (
-          // Fill the container, preserving aspect via object-cover
-          <img
-            src={image}
-            alt={label}
-            className="object-cover"
-          />
+          <img src={image} alt={name} className="object-cover w-full h-full" />
         ) : (
-          // Empty placeholder
           <div className="w-full h-full bg-gray-800" />
         )}
         <div className="absolute bottom-0 left-0 w-full bg-black/10 px-2 py-1 rounded-b-lg">
-              <p className="text-white text-lg font-bold truncate">{name}</p>
-            </div>
+          <p className="text-white text-sm sm:text-sm md:text-md lg:text-lg font-bold truncate">{name}</p>
+        </div>
 
         <button
           onClick={() => onToggle(boxId)}
           className="absolute top-1 right-1 bg-black bg-opacity-50 rounded-full p-1 hover:bg-opacity-75 z-10"
-          >
-          <MdChangeCircle size={24} color="white" className='cursor-pointer' />
+        >
+          <MdChangeCircle size={24} color="white" className="cursor-pointer" />
         </button>
       </div>
-          
 
-      {isOpen && (
+      {/* If isOpen and placement is 'center', render full-screen overlay */}
+      {isOpen && placement === 'center' && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-900 rounded-lg w-full h-fit max-w-3xl overflow-auto mt-10">
+            <div className="p-4 flex justify-between items-center border-b border-gray-700">
+              <h2 className="text-xl font-semibold text-white">
+                Select {label || type.charAt(0).toUpperCase() + type.slice(1)}
+              </h2>
+              <button
+                onClick={() => onToggle('')}
+                className="text-white text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4">
+              <SelectionGrid
+                items={items.map((i) => ({
+                  _id: i._id,
+                  name: i.name,
+                  image: i.image,
+                  description: i.description || i.name,
+                }))}
+                type={type}
+                onSelect={(item: GridItem) => {
+                  onChange(item);
+                  onToggle('');
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop popover for placement='left' or 'right' */}
+      {isOpen && (placement === 'left' || placement === 'right') && (
         <div
           className={
             placement === 'right'
@@ -93,7 +133,7 @@ const SelectionBox: FC<SelectableBlockProps> = ({
             type={type}
             onSelect={(item: GridItem) => {
               onChange(item);
-              onToggle(''); // close grid
+              onToggle(''); // close popover
             }}
           />
         </div>

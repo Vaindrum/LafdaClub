@@ -119,7 +119,7 @@ export default function ProfilePage() {
             View Stats
           </button>
           <button
-            onClick={() => router.push(`/profile/${profile.username}/orders`)}
+            onClick={() => router.push(`/orders`)}
             className="w-full md:w-auto bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-xl font-semibold transition"
           >
             View Orders

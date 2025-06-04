@@ -193,7 +193,7 @@ export default function Navbar() {
           </Link>
 
           <Link href="/merch">
-            <div className="flex flex-col items-center text-pink-400 hover:text-pink-500 transition">
+            <div className="flex flex-col items-center text-amber-400 hover:text-pink-500 transition">
               <FiTag size={24} />
               <span className="text-xs">Merch</span>
             </div>
@@ -207,7 +207,7 @@ export default function Navbar() {
           </Link>
 
           <Link href="/cart">
-            <div className="flex flex-col items-center text-pink-400 hover:text-pink-500 transition">
+            <div className="flex flex-col items-center text-amber-400 hover:text-pink-500 transition">
               <FaShoppingCart size={24} />
               <span className="text-xs">Cart</span>
             </div>
@@ -223,7 +223,7 @@ export default function Navbar() {
           ) : (
             <button
               onClick={openLogin}
-              className="flex flex-col items-center text-gray-400 hover:text-pink-500 transition"
+              className="flex flex-col items-center text-amber-400 hover:text-pink-500 transition"
             >
               <FiLogIn size={24} />
               <span className="text-xs">Login</span>
