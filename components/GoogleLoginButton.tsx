@@ -10,15 +10,15 @@ export default function GoogleLoginButton() {
         window.location.href = `${process.env.NEXT_PUBLIC_API_URL}auth/google`;
     };
 
-    useEffect(() => {
-        const url = new URL(window.location.href);
-        const token = url.searchParams.get("token");
+    // useEffect(() => {
+    //     const url = new URL(window.location.href);
+    //     const token = url.searchParams.get("token");
 
-        if (token) {
-            document.cookie = `jwt=${token}; path=/; secure; samesite=None`; // You can also call a login() handler here
-            router.push("/"); // or any protected page
-        }
-    }, []);
+    //     if (token) {
+    //         document.cookie = `jwt=${token}; path=/; secure; samesite=None`; // You can also call a login() handler here
+    //         router.push("/"); // or any protected page
+    //     }
+    // }, []);
 
     return (
         <button

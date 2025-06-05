@@ -6,6 +6,7 @@ import { axiosInstance } from "@/lib/axios";
 import SelectionBox from "@/components/SelectionBox";
 import Loading from "@/components/Loading";
 import { useRouter } from "next/navigation";
+import { FaCrown } from "react-icons/fa";
 
 // ─── IMPORT FRAMER MOTION ─────────────────────────────────────────────────────
 import { motion, Variants } from "framer-motion";
@@ -49,6 +50,7 @@ export default function PlayGamePage() {
   const [stage, setStage] = useState<GameData["stages"][0] | null>(null);
   const [announcer, setAnnouncer] = useState<GameData["announcers"][0] | null>(null);
   const [narration, setNarration] = useState<string>("");
+  const [winner, setWinner] = useState<string>("");
 
   // Which box is open? (null if none)
   const [openBoxId, setOpenBoxId] = useState<string | null>(null);
@@ -102,7 +104,7 @@ export default function PlayGamePage() {
       return;
     }
     try {
-      const { data } = await axiosInstance.post("/game/fight", {
+      const { data } = await axiosInstance.post("game/fight", {
         characterId1: p1,
         weaponId1: w1,
         characterId2: p2,
@@ -111,6 +113,7 @@ export default function PlayGamePage() {
         announcerId: announcer,
       });
       setNarration(data.result);
+      setWinner(data.winner);
       sectionRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (err) {
       alert("Battle failed to start.");
@@ -125,6 +128,21 @@ export default function PlayGamePage() {
       </div>
     );
   }
+
+  function formatNarration(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g); // Split on **bold** parts
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={i} className="font-bold text-yellow-400">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
 
   return (
     <div className="relative min-h-screen bg-black">
@@ -340,8 +358,10 @@ export default function PlayGamePage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            {narration || "Awaiting battle..."}
+            { narration ? formatNarration(narration) : "Awaiting battle"}
           </motion.p>
+            {winner && (<div className="bg-pink-700 w-fit mx-auto px-10 py-3 mt-5 rounded-xl flex gap-3">
+               <FaCrown size={20} /> {winner} WINS <FaCrown size={20}/></div>)}
         </motion.div>
 
         {/* Stats & Leaderboard Buttons */}
@@ -498,8 +518,9 @@ export default function PlayGamePage() {
         {/* Narration */}
         <div className="mt-6 text-center">
           <h2 className="text-xl font-bold mb-2">Battle Narration</h2>
-          <p className="bg-gray-900 p-3 rounded-lg">{narration || "Awaiting battle..."}</p>
+          <p className="bg-gray-900 p-3 rounded-lg">{narration ? formatNarration(narration) : "Awaiting battle"}</p>
         </div>
+          {winner && (<p className="bg-pink-700 drop-shadow-2xl p-3 rounded-lg mx-auto w-fit px-6 flex gap-3"><FaCrown size={20} />{winner} WINS <FaCrown size={20}/></p>)}
 
         {/* Stats & Leaderboard */}
         <div className="mt-6 flex flex-col gap-3 mb-20">
