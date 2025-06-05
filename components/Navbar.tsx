@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { FiMenu, FiX, FiHome, FiTag, FiPlay, FiUser, FiLogIn } from "react-icons/fi";
 import { BiSolidBox } from "react-icons/bi";
 import { FaShoppingCart } from "react-icons/fa";
+import { FaTshirt } from "react-icons/fa";
 
 export default function Navbar() {
   const { openLogin, openSignup, openLogout } = useModalStore();
@@ -204,7 +205,7 @@ export default function Navbar() {
 
           <Link href="/merch">
             <div className="flex flex-col items-center text-amber-400/80 hover:text-pink-500 transition">
-              <FiTag size={24} />
+              <FaTshirt size={24} />
               <span className="text-xs">Merch</span>
             </div>
           </Link>
@@ -226,7 +227,7 @@ export default function Navbar() {
           {authUser ? (
             <Link href={`/profile/${username}`}>
               <div className="flex flex-col items-center text-amber-400/80 hover:text-pink-500 transition">
-                <img src={authUser.profilePic} alt="profilePic" width={28} height={28} />
+                <img src={authUser.profilePic} alt="profilePic" width={28} height={28} className="w-7 h-7 rounded-full" />
                 <span className="text-xs">Profile</span>
               </div>
             </Link>

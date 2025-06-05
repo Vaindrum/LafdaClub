@@ -6,6 +6,8 @@ import { axiosInstance } from "@/lib/axios";
 import SelectionBox from "@/components/SelectionBox";
 import Loading from "@/components/Loading";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useModalStore } from "@/stores/useModalStore";
 import { FaCrown } from "react-icons/fa";
 
 // ─── IMPORT FRAMER MOTION ─────────────────────────────────────────────────────
@@ -39,7 +41,9 @@ const itemVariants: Variants = {
 };
 
 export default function PlayGamePage() {
+  const {authUser} = useAuthStore();
   const router = useRouter();
+  const {openLogin} = useModalStore();
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const [gameData, setGameData] = useState<GameData | null>(null);
@@ -142,6 +146,14 @@ export default function PlayGamePage() {
     return <span key={i}>{part}</span>;
   });
 }
+
+  const handleYourStats = () => {
+    if (authUser) {
+      router.push(`/profile/${authUser.username}`);
+    } else {
+      openLogin();
+    }
+  };
 
 
   return (
@@ -374,6 +386,7 @@ export default function PlayGamePage() {
             className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg cursor-pointer"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={handleYourStats}
           >
             Your Stats
           </motion.button>
@@ -524,7 +537,7 @@ export default function PlayGamePage() {
 
         {/* Stats & Leaderboard */}
         <div className="mt-6 flex flex-col gap-3 mb-20">
-          <button className="bg-gray-800 hover:bg-gray-700 py-2 rounded-lg font-medium">
+          <button className="bg-gray-800 hover:bg-gray-700 py-2 rounded-lg font-medium" onClick={handleYourStats}>
             Your Stats
           </button>
           <button className="bg-gray-800 hover:bg-gray-700 py-2 rounded-lg font-medium" onClick={()=> router.push("/leaderboards")}>

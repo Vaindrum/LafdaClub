@@ -164,7 +164,7 @@ export default function ProfilePage() {
         {/* ===== Game Stats Header ===== */}
         <div ref={statsRef} className="mt-12">
           <h1 className="text-3xl font-bold mb-6">
-            {profile.username}'s Game Stats
+            {profile.username.split(" ")[0]}'s Game Stats
           </h1>
 
           {/* ===== Total Battles ===== */}
