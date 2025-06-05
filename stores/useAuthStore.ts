@@ -5,6 +5,7 @@ import { axiosInstance } from "../lib/axios";
 type AuthUser = {
   _id: string;
   username: string;
+  profilePic: string;
   // add other fields returned from backend
 };
 

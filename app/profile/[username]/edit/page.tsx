@@ -134,7 +134,7 @@ export default function EditProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white px-6 py-12">
-      <div className="max-w-xl mx-auto bg-gray-800 rounded-2xl p-8 space-y-6">
+      <div className="max-w-xl mx-auto bg-gray-800 rounded-2xl p-8 space-y-6 mt-15">
         <h1 className="text-3xl font-bold text-center">Edit Your Profile</h1>
 
         {/* Profile Picture Preview & Upload */}
@@ -152,11 +152,12 @@ export default function EditProfilePage() {
               </div>
             )}
           </div>
+          
           <input
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="text-sm text-gray-300"
+            className="text-sm text-gray-300 cursor-pointer bg-gray-600 w-50 px-4 py-2 rounded-lg"
           />
         </div>
 
@@ -203,7 +204,7 @@ export default function EditProfilePage() {
           <button
             type="submit"
             disabled={saving}
-            className={`w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-xl font-semibold transition ${
+            className={`w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-xl font-semibold transition cursor-pointer ${
               saving ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >

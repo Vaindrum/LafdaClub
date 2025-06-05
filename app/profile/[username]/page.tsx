@@ -1,19 +1,19 @@
 // app/profile/[username]/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/stores/useAuthStore";
 import Loading from "@/components/Loading";
-import { useRef } from "react";
 
 type ProfileData = {
+  _id: string;
   username: string;
-  profilePic: string;   // URL to profile picture
+  profilePic: string; // URL to profile picture
   bio: string;
-  createdAt: string;    // ISO date string
+  createdAt: string; // ISO date string
 };
 
 export default function ProfilePage() {
@@ -21,7 +21,7 @@ export default function ProfilePage() {
   const { username } = useParams();
   const { authUser } = useAuthStore();
 
-  const statsRef = useRef<HTMLDivElement>(null); 
+  const statsRef = useRef<HTMLDivElement>(null);
 
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [stats, setStats] = useState<any>(null);
@@ -35,7 +35,7 @@ export default function ProfilePage() {
       setLoadingProfile(true);
       try {
         const { data } = await axiosInstance.get(`user/${username}`);
-        // Expect data to be: { username, profilePic, bio, createdAt }
+        // Expect data to be: { _id, username, profilePic, bio, createdAt }
         setProfile(data);
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -48,9 +48,12 @@ export default function ProfilePage() {
   }, [username]);
 
   useEffect(() => {
+    if (!profile?._id) return;
+
     const fetchStats = async () => {
       try {
-        const res = await axiosInstance.get("stats/user");
+        const res = await axiosInstance.get(`stats/user/${profile._id}`);
+        // console.log(res.data);
         setStats(res.data);
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -58,8 +61,9 @@ export default function ProfilePage() {
         setLoading(false);
       }
     };
+
     fetchStats();
-  }, []);
+  }, [profile?._id]);
 
   if (loading || loadingProfile) {
     return (
@@ -90,7 +94,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white px-6 py-12">
-      <div className="max-w-4xl mx-auto mt-15">
+      <div className="max-w-4xl mx-auto mt-15 ">
         {/* ===== Profile Header ===== */}
         <div className="flex items-center justify-between">
           {/* Left: Avatar + Username/Joined */}
@@ -110,24 +114,25 @@ export default function ProfilePage() {
           {isOwnProfile && (
             <button
               onClick={() => router.push(`/profile/${profile.username}/edit`)}
-              className="hidden md:inline-flex bg-transparent border border-white hover:bg-white hover:text-gray-900 text-white font-semibold py-2 px-4 rounded-lg transition"
+              className="hidden md:inline-flex bg-pink-600 hover:bg-pink-500 text-white font-semibold py-2 px-4 rounded-lg transition cursor-pointer"
             >
               Edit Profile
             </button>
           )}
-          
         </div>
- {/** Mobile-only “Edit Profile” button (appears below Bio) **/}
+
+        {/** Mobile-only “Edit Profile” button (appears below Bio) **/}
         {isOwnProfile && (
           <div className="mt-4 md:hidden">
             <button
               onClick={() => router.push(`/profile/${profile.username}/edit`)}
-              className="w-full bg-transparent border border-white hover:bg-white hover:text-gray-900 text-white font-semibold py-2 px-6 rounded-lg transition"
+              className="w-full bg-pink-600 hover:bg-pink-500 text-white font-semibold py-2 px-6 rounded-lg transition"
             >
               Edit Profile
             </button>
           </div>
         )}
+
         {/* ===== Bio Section ===== */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-2">Bio</h2>
@@ -137,22 +142,24 @@ export default function ProfilePage() {
         </div>
 
         {/* ===== Action Buttons ===== */}
-        <div className="mt-6 flex flex-wrap gap-4">
-           <button
-            onClick={() => {
-              statsRef.current?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="bg-transparent border border-white hover:bg-white hover:text-gray-900 text-white font-semibold py-2 px-6 rounded-lg transition"
-          >
-            View Stats
-          </button>
-          <button
-            onClick={() => router.push(`/orders`)}
-            className="bg-transparent border border-white hover:bg-white hover:text-gray-900 text-white font-semibold py-2 px-6 rounded-lg transition"
-          >
-            View Orders
-          </button>
-        </div>
+        {isOwnProfile && (
+          <div className="mt-6 flex flex-wrap gap-4">
+            <button
+              onClick={() => {
+                statsRef.current?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="bg-amber-600 hover:bg-yellow-600 text-black font-semibold py-2 px-6 rounded-lg transition cursor-pointer"
+            >
+              View Stats
+            </button>
+            <button
+              onClick={() => router.push(`/orders`)}
+              className="bg-amber-600 hover:bg-yellow-600 text-black font-semibold py-2 px-6 rounded-lg transition cursor-pointer"
+            >
+              View Orders
+            </button>
+          </div>
+        )}
 
         {/* ===== Game Stats Header ===== */}
         <div ref={statsRef} className="mt-12">
@@ -173,13 +180,13 @@ export default function ProfilePage() {
               <h2 className="text-lg font-semibold mb-2">Favorite Character</h2>
               <div className="relative">
                 <img
-                  src={stats.favoriteCharacter.image}
-                  alt={stats.favoriteCharacter.name}
+                  src={stats?.favoriteCharacter?.image ?? "/placeholder.jpg"}
+                  alt={stats?.favoriteCharacter?.name ?? ""}
                   className="w-full h-32 object-cover rounded-lg mb-1"
                 />
                 <div className="absolute bottom-0 left-0 w-full bg-black/20 px-2 py-1 rounded-b-lg">
                   <p className="text-white text-lg font-bold truncate">
-                    {stats.favoriteCharacter?.name}
+                    {stats?.favoriteCharacter?.name}
                   </p>
                 </div>
               </div>
@@ -190,13 +197,13 @@ export default function ProfilePage() {
               <h2 className="text-lg font-semibold mb-2">Favorite Weapon</h2>
               <div className="relative">
                 <img
-                  src={stats.favoriteWeapon.image}
-                  alt={stats.favoriteWeapon.name}
+                  src={stats?.favoriteWeapon?.image ?? "/placeholder.jpg"}
+                  alt={stats?.favoriteWeapon?.name ?? ""}
                   className="w-full h-32 object-cover rounded-lg mb-1"
                 />
                 <div className="absolute bottom-0 left-0 w-full bg-black/20 px-2 py-1 rounded-b-lg">
                   <p className="text-white text-lg font-bold truncate">
-                    {stats.favoriteWeapon?.name}
+                    {stats?.favoriteWeapon?.name}
                   </p>
                 </div>
               </div>
@@ -207,13 +214,13 @@ export default function ProfilePage() {
               <h2 className="text-lg font-semibold mb-2">Favorite Stage</h2>
               <div className="relative">
                 <img
-                  src={stats.favoriteStage.image}
-                  alt={stats.favoriteStage.name}
+                  src={stats?.favoriteStage?.image ?? "/placeholder.jpg"}
+                  alt={stats?.favoriteStage?.name ?? ""}
                   className="w-full h-32 object-cover rounded-lg mb-1"
                 />
                 <div className="absolute bottom-0 left-0 w-full bg-black/20 px-2 py-1 rounded-b-lg">
                   <p className="text-white text-lg font-bold truncate">
-                    {stats.favoriteStage?.name}
+                    {stats?.favoriteStage?.name}
                   </p>
                 </div>
               </div>
@@ -224,13 +231,13 @@ export default function ProfilePage() {
               <h2 className="text-lg font-semibold mb-2">Favorite Announcer</h2>
               <div className="relative">
                 <img
-                  src={stats.favoriteAnnouncer.image}
-                  alt={stats.favoriteAnnouncer.name}
+                  src={stats?.favoriteAnnouncer?.image ?? "/placeholder.jpg"}
+                  alt={stats?.favoriteAnnouncer?.name ?? ""}
                   className="w-full h-32 object-cover rounded-lg mb-1"
                 />
                 <div className="absolute bottom-0 left-0 w-full bg-black/20 px-2 py-1 rounded-b-lg">
                   <p className="text-white text-lg font-bold truncate">
-                    {stats.favoriteAnnouncer?.name}
+                    {stats?.favoriteAnnouncer?.name}
                   </p>
                 </div>
               </div>
@@ -240,7 +247,7 @@ export default function ProfilePage() {
           {/* ===== Recent Battles ===== */}
           <div className="mt-8">
             <h2 className="text-2xl font-semibold mb-4">Recent Battles</h2>
-            {stats.recentBattles.length > 0 ? (
+            {stats?.recentBattles?.length > 0 ? (
               <ul className="space-y-4">
                 {stats.recentBattles.map((battle: any) => (
                   <li key={battle._id} className="bg-white/5 p-4 rounded-lg">

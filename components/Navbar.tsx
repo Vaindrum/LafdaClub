@@ -62,11 +62,11 @@ export default function Navbar() {
         <div className="hidden md:flex space-x-4">
           {authUser ? (
             <>
-            <Link href="/orders">
+              <Link href="/orders">
                 <button className="py-2 hover:text-amber-500 rounded transition cursor-pointer">
                   <BiSolidBox size={20} />
                 </button>
-                </Link>
+              </Link>
               <Link href="/cart">
                 <button className="px-2 py-2 hover:text-green-500 rounded transition cursor-pointer">
                   <FaShoppingCart size={20} />
@@ -105,17 +105,15 @@ export default function Navbar() {
 
       {/* Overlay for Sidebar */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity ${
-          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity ${isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+          }`}
         onClick={closeMenu}
       ></div>
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-[#0c111b] z-50 transform transition-transform duration-300 ${
-          isMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-64 bg-[#0c111b] z-50 transform transition-transform duration-300 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-700">
           <span className="text-white text-lg font-bold">Menu</span>
@@ -130,6 +128,12 @@ export default function Navbar() {
           </Link>
           <Link href="/merch" className="hover:text-pink-500 transition" onClick={closeMenu}>
             Merch
+          </Link>
+          <Link href="/cart" className="hover:text-pink-500 transition" onClick={closeMenu}>
+            Cart
+          </Link>
+          <Link href="/orders" className="hover:text-pink-500 transition" onClick={closeMenu}>
+            Orders
           </Link>
           <Link href="/play" className="hover:text-pink-500 transition" onClick={closeMenu}>
             Play
@@ -190,30 +194,30 @@ export default function Navbar() {
 
       {/* Bottom Navbar (mobile only) */}
       <div className="fixed bottom-0 left-0 w-full bg-gray-900 pt-1 md:hidden z-30">
-        <div className="flex justify-around items-center py-2">
+        <div className="flex justify-around items-center py-2 ">
           <Link href="/">
-            <div className="flex flex-col items-center text-amber-400 hover:text-pink-500 transition">
+            <div className="flex flex-col items-center text-amber-400/80 hover:text-pink-500 transition">
               <FiHome size={24} />
               <span className="text-xs">Home</span>
             </div>
           </Link>
 
           <Link href="/merch">
-            <div className="flex flex-col items-center text-amber-400 hover:text-pink-500 transition">
+            <div className="flex flex-col items-center text-amber-400/80 hover:text-pink-500 transition">
               <FiTag size={24} />
               <span className="text-xs">Merch</span>
             </div>
           </Link>
 
           <Link href="/play">
-            <div className="flex flex-col items-center text-amber-400 hover:text-pink-500 transition">
+            <div className="flex flex-col items-center text-amber-400/80 hover:text-pink-500 transition">
               <FiPlay size={24} />
               <span className="text-xs">Play</span>
             </div>
           </Link>
 
           <Link href="/cart">
-            <div className="flex flex-col items-center text-amber-400 hover:text-pink-500 transition">
+            <div className="flex flex-col items-center text-amber-400/80 hover:text-pink-500 transition">
               <FaShoppingCart size={24} />
               <span className="text-xs">Cart</span>
             </div>
@@ -221,8 +225,8 @@ export default function Navbar() {
 
           {authUser ? (
             <Link href={`/profile/${username}`}>
-              <div className="flex flex-col items-center text-amber-400 hover:text-pink-500 transition">
-                <FiUser size={24} />
+              <div className="flex flex-col items-center text-amber-400/80 hover:text-pink-500 transition">
+                <img src={authUser.profilePic} alt="profilePic" width={28} height={28} />
                 <span className="text-xs">Profile</span>
               </div>
             </Link>

@@ -165,7 +165,7 @@ export default function Home() {
             Explore Merch
           </motion.a>
           <motion.a
-            href="/game"
+            href="/play"
             className="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-xl shadow-lg"
             variants={buttonVariants}
             whileHover="hover"

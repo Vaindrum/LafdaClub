@@ -5,4 +5,4 @@ export const axiosInstance = axios.create({
     withCredentials: true
 })
 
-console.log("API base URL:", process.env.NEXT_PUBLIC_API_URL);
+// console.log("API base URL:", process.env.NEXT_PUBLIC_API_URL);
