@@ -1,14 +1,8 @@
-"use client"
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { useEffect } from "react";
-import { useAuthStore } from "@/stores/useAuthStore";
-import Navbar from "@/components/Navbar";
-import LoginModal from "@/components/LoginModal";
-import SignupModal from "@/components/SignupModal";
-import Loading from "@/components/Loading";
-import LogoutPrompt from "@/components/LogoutPrompt";
+import ClientRoot from "@/components/ClientRoot"; // This is new
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,50 +14,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// export const metadata: Metadata = {
-//   title: "Lafda Club",
-//   description: "lafdaclub",
-// };
+export const metadata: Metadata = {
+  title: "Lafda Club",
+  description: "LafdaClub is a streetwear merch shop with a wide collection of A-grade graphic tees. Upgrade your fits.",
+  keywords: ["LafdaClub", "lafdaclub", "LAFDACLUB", "lafda club", "Lafda Club", "LAFDA CLUB", "Tshirts", "Merch", "Graphic tees", "Graphic Tshirts", "buy tshirts online"],
+  authors: [{ name: "Vaibhav Raj", url: "https://github.com/vaindrum" }],
+  icons: {
+    icon: "/lafda club.ico",
+    apple: "/LFDC.png",
+    shortcut: "/lafda club.ico",
+  },
+  openGraph: {
+    title: "Lafda Club",
+    description: "LafdaClub is a streetwear merch shop with a wide collection of A-grade graphic tees. Upgrade your fits.",
+    url: "https://lafda-club.vercel.app",
+    siteName: "Lafda Club || lafda club",
+    images: [
+      {
+        url: "https://lafda-club.vercel.app/LFDC.png",
+      },
+    ],
+    type: "website",
+  },
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { checkAuth, isCheckingAuth } = useAuthStore();
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  if (isCheckingAuth) {
-    return (
-      <html lang="en" suppressHydrationWarning>
-      <body 
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        
-      <div className="h-screen flex items-center justify-center text-white bg-black">
-        <Loading />
-      </div>
-      </body>
-    </html>
-    );
-  }
-  // const fetchUser = useAuthStore((state) => state.fetchUser);
-
-  // useEffect(() => {
-  //   fetchUser();
-  // }, [fetchUser]);
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Navbar />
-        <LoginModal />
-        <SignupModal />
-        <LogoutPrompt />
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ClientRoot>{children}</ClientRoot>
       </body>
     </html>
   );

@@ -241,7 +241,7 @@ export default function ProductPage() {
       const { data } = await axiosInstance.get(`review/reviews/${id}`);
       setReviews(data);
     } catch (err) {
-      console.error("Error deleting comment:", err);
+      console.error("ERROR DELETING COMMENT:", err);
     }
   };
 
@@ -291,26 +291,64 @@ export default function ProductPage() {
   };
 
   if (!product)
-    return <div className="text-white p-6">Loading product…</div>;
+    return (
+      <div className="text-white p-6 flex items-center justify-center h-screen bg-black">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          Loading product…
+        </motion.div>
+      </div>
+    );
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-10">
+    <main className="min-h-screen bg-black text-white px-4 sm:px-6 lg:px-10 py-8 md:mx-70">
       {/* Product Info */}
-      <div className="grid md:grid-cols-2 gap-12 mt-20 mb-16">
+      <motion.section
+        className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12 md:mt-20 mb-12"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: {},
+          visible: {
+            transition: {
+              staggerChildren: 0.15,
+            },
+          },
+        }}
+      >
         {/* Image */}
-        <div>
+        <motion.div
+          className="w-full"
+          variants={{
+            hidden: { opacity: 0, x: -20 },
+            visible: { opacity: 1, x: 0 },
+          }}
+        >
           <img
             src={product.images[0]}
             alt={product.name}
-            className="w-full h-[400px] object-cover rounded-xl border border-gray-700"
+            className="w-full h-auto max-h-[400px] object-cover rounded-xl border border-gray-700"
           />
-          <div className="flex mt-4 gap-3">
+          <div className="flex gap-2 mt-4 overflow-x-auto">
             {product.images.map((img, i) => (
-              <img
+              <motion.img
                 key={i}
                 src={img}
                 alt={`thumb-${i}`}
-                className={`h-16 w-16 rounded border cursor-pointer ${
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  // Replace main image on click
+                  setProduct((prev) =>
+                    prev
+                      ? { ...prev, images: [img, ...prev.images.filter((_, idx) => idx !== i)] }
+                      : prev
+                  );
+                }}
+                className={`h-16 w-16 flex-shrink-0 rounded border cursor-pointer ${
                   img === product.images[0]
                     ? "border-pink-500"
                     : "border-gray-600"
@@ -318,45 +356,55 @@ export default function ProductPage() {
               />
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Details */}
-        <div className="space-y-6">
-          <h1 className="text-3xl font-bold">{product.name}</h1>
-          <p className="text-pink-400 text-2xl font-semibold">
-            ₹{product.price}
+        <motion.div
+          className="space-y-6"
+          variants={{
+            hidden: { opacity: 0, x: 20 },
+            visible: { opacity: 1, x: 0 },
+          }}
+        >
+          <h1 className="text-3xl lg:text-4xl font-bold">{product.name}</h1>
+          <p className="text-pink-400 text-2xl lg:text-3xl font-semibold">
+            ₹{product.price.toLocaleString("en-IN")}
           </p>
-          <p className="text-gray-400">{product.description}</p>
-          <p className="text-sm text-gray-500">
-            Category: {product.category}
-          </p>
-          <div className="flex gap-4 mt-4">
-            <button
+          <p className="text-gray-300">{product.description}</p>
+          <p className="text-sm text-gray-500">Category: {product.category}</p>
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <motion.button
               onClick={() => router.push(`/billing/${product._id}`)}
-              className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-2 rounded-lg font-semibold transition"
+              className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold transition"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
               Buy Now
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={() =>
                 axiosInstance.post("cart/add", {
                   productId: product._id,
                   quantity: 1,
                 })
               }
-              className="border border-pink-600 hover:bg-pink-600 text-white px-6 py-2 rounded-lg font-semibold transition"
+              className="border border-pink-600 hover:bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
               Add to Cart
-            </button>
+            </motion.button>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.section>
 
       {/* Reviews Section */}
-      <section className="mt-20">
-        <h2 className="text-2xl font-bold mb-6">User Reviews</h2>
+      <section className="mt-12">
+        <h2 className="text-2xl lg:text-3xl font-bold mb-6">User Reviews</h2>
 
-        {loading && <p className="text-gray-400">Loading reviews…</p>}
+        {loading && (
+          <div className="text-gray-400">Loading reviews…</div>
+        )}
 
         {!loading && reviews.length === 0 && (
           <p className="text-gray-400">
@@ -365,8 +413,8 @@ export default function ProductPage() {
         )}
 
         {/* Review List */}
-        <div className="space-y-8">
-          {reviews.map((r) => {
+        <div className="space-y-6">
+          {reviews.map((r, reviewIdx) => {
             const isAuthor = authUser?._id === r.user._id;
             const userLiked = authUser ? r.likes.includes(authUser._id) : false;
             const userDisliked = authUser
@@ -379,12 +427,19 @@ export default function ProductPage() {
                 className="bg-gray-800 p-6 rounded-xl border border-gray-700"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ delay: 0.1 * reviewIdx, duration: 0.3 }}
               >
                 {/* Review Header */}
-                <div className="flex justify-between items-start">
-                  <div className="cursor-pointer" onClick={() => {router.push(`/review/${r._id}`)}}>
-                    <p className="font-semibold"></p>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                  <div
+                    className="cursor-pointer mb-2 sm:mb-0"
+                    onClick={() => {
+                      router.push(`/review/${r._id}`);
+                    }}
+                  >
+                    <p className="font-semibold text-lg">
+                      {r.user.username}
+                    </p>
                     <p className="flex items-center text-yellow-400">
                       {"⭐".repeat(r.rating)}
                       <span className="text-gray-400 ml-2">
@@ -424,6 +479,7 @@ export default function ProductPage() {
                           setShowReportPrompt({ reviewId: r._id });
                         }
                       }}
+                      className="hover:text-pink-400 transition"
                     >
                       <FiFlag />
                     </button>
@@ -434,7 +490,7 @@ export default function ProductPage() {
                         onClick={() =>
                           handleDeleteReview(r._id, r.user._id)
                         }
-                        className="ml-2"
+                        className="hover:text-red-500 transition"
                       >
                         <FiTrash2 />
                       </button>
@@ -443,11 +499,11 @@ export default function ProductPage() {
                 </div>
 
                 {/* Review Text */}
-                <p className="mt-2 text-gray-200">{r.text}</p>
+                <p className="mt-3 text-gray-200">{r.text}</p>
 
                 {/* Comments Section */}
-                <div className="mt-4 border-t border-gray-700 pt-4 space-y-4">
-                  {r.comments.map((c) => {
+                <div className="mt-6 border-t border-gray-700 pt-4 space-y-4">
+                  {r.comments.map((c, commentIdx) => {
                     const isCommentAuthor =
                       authUser?._id === c.user._id;
                     const commentLiked = authUser
@@ -458,11 +514,14 @@ export default function ProductPage() {
                       : false;
 
                     return (
-                      <div
+                      <motion.div
                         key={c._id}
                         className="bg-gray-700 p-4 rounded-xl"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.05 * commentIdx, duration: 0.25 }}
                       >
-                        <div className="flex justify-between items-start">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                           <div>
                             <p className="font-semibold text-sm">
                               {c.user.username}
@@ -471,7 +530,7 @@ export default function ProductPage() {
                               {c.text}
                             </p>
                           </div>
-                          <div className="flex gap-3 text-gray-400">
+                          <div className="flex gap-3 text-gray-400 mt-2 sm:mt-0">
                             {/* Like Comment */}
                             <button
                               onClick={() =>
@@ -505,7 +564,7 @@ export default function ProductPage() {
                             {/* Report Comment */}
                             <button
                               onClick={() => handleReportComment(c._id)}
-                              className="text-sm"
+                              className="hover:text-pink-400 transition text-sm"
                             >
                               <FiFlag />
                             </button>
@@ -516,14 +575,14 @@ export default function ProductPage() {
                                 onClick={() =>
                                   handleDeleteComment(c._id, c.user._id)
                                 }
-                                className="ml-1 text-sm"
+                                className="hover:text-red-500 transition ml-1 text-sm"
                               >
                                 <FiTrash2 />
                               </button>
                             )}
                           </div>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   })}
 
@@ -540,14 +599,16 @@ export default function ProductPage() {
                           }))
                         }
                         placeholder="Write a comment…"
-                        className="flex-1 bg-gray-800 px-3 py-2 rounded-lg"
+                        className="flex-1 bg-gray-800 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                       />
-                      <button
+                      <motion.button
                         onClick={() => handleSubmitComment(r._id)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                         className="text-pink-500 hover:text-pink-400 transition"
                       >
                         <FiSend size={20} />
-                      </button>
+                      </motion.button>
                     </div>
                   ) : (
                     <p className="text-gray-400 text-sm">
@@ -569,12 +630,12 @@ export default function ProductPage() {
         {/* Create Review Form */}
         {authUser ? (
           <motion.div
-            className="mt-10 bg-gray-800 p-6 rounded-xl border border-gray-700"
+            className="mt-12 bg-gray-800 p-6 rounded-xl border border-gray-700"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.4 }}
           >
-            <h3 className="text-xl font-semibold mb-4">
+            <h3 className="text-xl lg:text-2xl font-semibold mb-4">
               Write a Review
             </h3>
             <form
@@ -588,7 +649,7 @@ export default function ProductPage() {
                   onChange={(e) =>
                     setReviewRating(+e.target.value)
                   }
-                  className="bg-gray-700 px-3 py-2 rounded-lg w-full"
+                  className="bg-gray-700 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-pink-500"
                 >
                   {[1, 2, 3, 4, 5].map((n) => (
                     <option key={n} value={n}>
@@ -605,16 +666,18 @@ export default function ProductPage() {
                   value={reviewText}
                   onChange={(e) => setReviewText(e.target.value)}
                   rows={4}
-                  className="w-full bg-gray-700 px-3 py-2 rounded-lg"
+                  className="w-full bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                   required
                 />
               </div>
-              <button
+              <motion.button
                 type="submit"
-                className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-2 rounded-lg font-semibold transition"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold transition"
               >
                 Submit Review
-              </button>
+              </motion.button>
             </form>
           </motion.div>
         ) : (
@@ -629,9 +692,9 @@ export default function ProductPage() {
 
       {/* Report Prompt Modal */}
       {showReportPrompt && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 px-4">
           <motion.div
-            className="bg-gray-900 p-6 rounded-xl w-[90%] max-w-md"
+            className="bg-gray-900 p-6 rounded-xl w-full max-w-md"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
@@ -643,7 +706,7 @@ export default function ProductPage() {
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
               rows={3}
-              className="w-full bg-gray-800 px-3 py-2 rounded-lg mb-4"
+              className="w-full bg-gray-800 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 mb-4"
               placeholder="Reason for reporting"
             />
             <div className="flex justify-end gap-3">
@@ -653,14 +716,16 @@ export default function ProductPage() {
               >
                 Cancel
               </button>
-              <button
+              <motion.button
                 onClick={() => {
                   handleSubmitReport(showReportPrompt.reviewId);
                 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition"
               >
                 Submit Report
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </div>

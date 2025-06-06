@@ -134,16 +134,63 @@ export default function PlayGamePage() {
   }
 
   function formatNarration(text: string) {
-  const parts = text.split(/(\*\*.*?\*\*)/g); // Split on **bold** parts
-  return parts.map((part, i) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
+  const REGEX = /(<intro>[\s\S]*?<\/intro>|<para>[\s\S]*?<\/para>|<conc>[\s\S])/g;
+
+  // Split on those blocks; keep the blocks as elements in the array
+  const parts = text.split(REGEX).filter((p) => p.trim().length > 0);
+
+  const parseBold = (str: string) => {
+    const BOLD_REGEX = /(\*\*.*?\*\*)/g;
+    const segments = str.split(BOLD_REGEX).filter((seg) => seg.length > 0);
+    return segments.map((seg, idx) => {
+      if (seg.startsWith("**") && seg.endsWith("**")) {
+        return (
+          <strong key={idx} className="font-bold text-amber-500">
+            {seg.slice(2, -2)}
+          </strong>
+        );
+      }
+      return <span key={idx}>{seg}</span>;
+    });
+  };
+
+  return parts.map((part, idx) => {
+    // Intro block
+    if (part.startsWith("<intro>") && part.endsWith("</intro>")) {
+      const inner = part.slice(7, -8).trim();
       return (
-        <strong key={i} className="font-bold text-yellow-400">
-          {part.slice(2, -2)}
-        </strong>
+        <p key={idx} className="mb-4 italic text-gray-300">
+          {parseBold(inner)}
+        </p>
       );
     }
-    return <span key={i}>{part}</span>;
+
+    // Phase block
+    if (part.startsWith("<para>") && part.endsWith("</para>")) {
+      const inner = part.slice(6, -7).trim();
+      return (
+        <p key={idx} className="mb-4">
+          {parseBold(inner)}
+        </p>
+      );
+    }
+
+    // Conclusion block
+    if (part.startsWith("<conc>")) {
+      const inner = part.slice(6).trim();
+      return (
+        <p key={idx} className="mt-4 italic font-semibold">
+          {parseBold(inner)}
+        </p>
+      );
+    }
+
+    // Fallback: render any unexpected text as a normal paragraph
+    return (
+      <p key={idx} className="mb-4">
+        {parseBold(part.trim())}
+      </p>
+    );
   });
 }
 
