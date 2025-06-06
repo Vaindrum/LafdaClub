@@ -132,7 +132,7 @@ export default function CartPage() {
         <p className="text-xl mb-4">Your cart is empty.</p>
         <button
           onClick={() => router.push("/merch")}
-          className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-2 rounded-xl transition"
+          className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-2 rounded-xl transition cursor-pointer"
         >
           Go to Merch Store
         </button>
@@ -142,6 +142,8 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white px-6 py-10">
+      <div className="md:mx-70">
+
       <h1 className="text-4xl font-bold mb-8 text-center mt-15">Your Cart</h1>
 
       <div className="space-y-6">
@@ -152,19 +154,20 @@ export default function CartPage() {
 
           return (
             <div
-              key={item._id}
-              className="flex flex-col md:flex-row bg-gray-800 rounded-xl p-4 md:items-center md:space-x-4"
+            key={item._id}
+            className="flex flex-col md:flex-row bg-gray-800 rounded-xl p-4 md:items-center md:space-x-4"
             >
               {/* Product Image */}
               <img
+              onClick={() => router.push(`/product/${item.product._id}`)}
                 src={item.product.images[0]}
                 alt={item.product.name}
-                className="w-full md:w-32 h-32 object-cover rounded-xl mb-4 md:mb-0"
-              />
+                className="w-full md:w-32 h-32 object-cover rounded-xl mb-4 md:mb-0 cursor-pointer"
+                />
 
               {/* Details */}
               <div className="flex-1 space-y-2">
-                <h2 className="text-2xl font-semibold">{item.product.name}</h2>
+                <h2 onClick={() => router.push(`/product/${item.product._id}`)} className="text-2xl font-semibold cursor-pointer">{item.product.name}</h2>
                 {item.size && (
                   <p className="text-sm text-gray-300">
                     Size: <span className="text-white">{item.size}</span>
@@ -181,24 +184,24 @@ export default function CartPage() {
                   <button
                     disabled={isUpdating || isRemoving}
                     onClick={() => handleChangeQuantity(item, "decrease")}
-                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-xl transition disabled:opacity-50"
-                  >
+                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-xl transition disabled:opacity-50 cursor-pointer"
+                    >
                     −
                   </button>
                   <span>{item.quantity}</span>
                   <button
                     disabled={isUpdating || isRemoving}
                     onClick={() => handleChangeQuantity(item, "increase")}
-                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-xl transition disabled:opacity-50"
-                  >
+                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-xl transition disabled:opacity-50 cursor-pointer"
+                    >
                     +
                   </button>
 
                   <button
                     disabled={isRemoving || isUpdating}
                     onClick={() => handleRemoveItem(item)}
-                    className="ml-4 px-3 py-1 bg-red-600 hover:bg-red-500 rounded-xl transition disabled:opacity-50"
-                  >
+                    className="ml-4 px-3 py-1 bg-red-600 hover:bg-red-500 rounded-xl transition disabled:opacity-50 cursor-pointer"
+                    >
                     Remove
                   </button>
                 </div>
@@ -215,11 +218,12 @@ export default function CartPage() {
         </div>
         <button
            onClick={() => router.push(`/billing/cart`)}
-          className="mt-4 md:mt-0 bg-pink-600 hover:bg-pink-500 text-white px-8 py-3 rounded-xl font-semibold transition"
-        >
+           className="mt-4 md:mt-0 bg-pink-600 hover:bg-pink-500 text-white px-8 py-3 rounded-xl font-semibold transition cursor-pointer"
+           >
           Proceed to Checkout
         </button>
       </div>
+          </div> 
     </div>
   );
 }

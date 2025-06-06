@@ -93,7 +93,19 @@ export default function ProfilePage() {
   const isOwnProfile = authUser && authUser.username === profile.username;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white px-6 py-12">
+    <div className="relative min-h-screen bg-gray-900">
+{stats && (<div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(${stats?.favoriteStage?.image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          filter: "blur(10px)",
+        }}
+      />)}
+      <div className="absolute inset-0 bg-black/70 z-0" />
+    <div className="relative z-10 text-white px-6 py-12">
       <div className="max-w-4xl mx-auto mt-15 ">
         {/* ===== Profile Header ===== */}
         <div className="flex items-center justify-between">
@@ -274,6 +286,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/stores/useAuthStore";
+import StarRating from "@/components/StarRating";
+import ReviewSection from "@/components/ReviewSection";
 import {
   FiThumbsUp,
   FiThumbsDown,
@@ -304,10 +306,22 @@ export default function ProductPage() {
     );
 
   return (
-    <main className="min-h-screen bg-black text-white px-4 sm:px-6 lg:px-10 py-8 md:mx-70">
+    <div className="relative min-h-screen bg-gray-900">
+    <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(${product.images[0]})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          filter: "blur(10px)",
+        }}
+      />
+      <div className="absolute inset-0 bg-black/80 z-0" />
+    <main className="relative z-10  text-white px-4 sm:px-6 lg:px-10 py-8 md:mx-70 mb-12 md:mb-0">
       {/* Product Info */}
       <motion.section
-        className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12 md:mt-20 mb-12"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12 md:mt-20 "
         initial="hidden"
         animate="visible"
         variants={{
@@ -348,11 +362,10 @@ export default function ProductPage() {
                       : prev
                   );
                 }}
-                className={`h-16 w-16 flex-shrink-0 rounded border cursor-pointer ${
-                  img === product.images[0]
+                className={`h-16 w-16 flex-shrink-0 rounded border cursor-pointer ${img === product.images[0]
                     ? "border-pink-500"
                     : "border-gray-600"
-                }`}
+                  }`}
               />
             ))}
           </div>
@@ -375,7 +388,7 @@ export default function ProductPage() {
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <motion.button
               onClick={() => router.push(`/billing/${product._id}`)}
-              className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold transition"
+              className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold transition cursor-pointer"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
@@ -388,7 +401,7 @@ export default function ProductPage() {
                   quantity: 1,
                 })
               }
-              className="border border-pink-600 hover:bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition"
+              className="border border-pink-600 hover:bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition cursor-pointer"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
@@ -399,296 +412,7 @@ export default function ProductPage() {
       </motion.section>
 
       {/* Reviews Section */}
-      <section className="mt-12">
-        <h2 className="text-2xl lg:text-3xl font-bold mb-6">User Reviews</h2>
-
-        {loading && (
-          <div className="text-gray-400">Loading reviews…</div>
-        )}
-
-        {!loading && reviews.length === 0 && (
-          <p className="text-gray-400">
-            No reviews yet. Be the first to review!
-          </p>
-        )}
-
-        {/* Review List */}
-        <div className="space-y-6">
-          {reviews.map((r, reviewIdx) => {
-            const isAuthor = authUser?._id === r.user._id;
-            const userLiked = authUser ? r.likes.includes(authUser._id) : false;
-            const userDisliked = authUser
-              ? r.dislikes.includes(authUser._id)
-              : false;
-
-            return (
-              <motion.div
-                key={r._id}
-                className="bg-gray-800 p-6 rounded-xl border border-gray-700"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * reviewIdx, duration: 0.3 }}
-              >
-                {/* Review Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                  <div
-                    className="cursor-pointer mb-2 sm:mb-0"
-                    onClick={() => {
-                      router.push(`/review/${r._id}`);
-                    }}
-                  >
-                    <p className="font-semibold text-lg">
-                      {r.user.username}
-                    </p>
-                    <p className="flex items-center text-yellow-400">
-                      {"⭐".repeat(r.rating)}
-                      <span className="text-gray-400 ml-2">
-                        ({r.rating}/5)
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex gap-4 text-gray-400">
-                    {/* Like Review */}
-                    <button
-                      onClick={() => handleToggleLike(r._id)}
-                      className="flex items-center gap-1"
-                    >
-                      <FiThumbsUp
-                        className={userLiked ? "text-pink-500" : ""}
-                      />
-                      <span>{r.likes.length}</span>
-                    </button>
-
-                    {/* Dislike Review */}
-                    <button
-                      onClick={() => handleToggleDislike(r._id)}
-                      className="flex items-center gap-1"
-                    >
-                      <FiThumbsDown
-                        className={userDisliked ? "text-pink-500" : ""}
-                      />
-                      <span>{r.dislikes.length}</span>
-                    </button>
-
-                    {/* Report Review */}
-                    <button
-                      onClick={() => {
-                        if (!authUser) {
-                          alert("Please log in to report reviews.");
-                        } else {
-                          setShowReportPrompt({ reviewId: r._id });
-                        }
-                      }}
-                      className="hover:text-pink-400 transition"
-                    >
-                      <FiFlag />
-                    </button>
-
-                    {/* Delete Review */}
-                    {isAuthor && (
-                      <button
-                        onClick={() =>
-                          handleDeleteReview(r._id, r.user._id)
-                        }
-                        className="hover:text-red-500 transition"
-                      >
-                        <FiTrash2 />
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Review Text */}
-                <p className="mt-3 text-gray-200">{r.text}</p>
-
-                {/* Comments Section */}
-                <div className="mt-6 border-t border-gray-700 pt-4 space-y-4">
-                  {r.comments.map((c, commentIdx) => {
-                    const isCommentAuthor =
-                      authUser?._id === c.user._id;
-                    const commentLiked = authUser
-                      ? c.likes.includes(authUser._id)
-                      : false;
-                    const commentDisliked = authUser
-                      ? c.dislikes.includes(authUser._id)
-                      : false;
-
-                    return (
-                      <motion.div
-                        key={c._id}
-                        className="bg-gray-700 p-4 rounded-xl"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.05 * commentIdx, duration: 0.25 }}
-                      >
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                          <div>
-                            <p className="font-semibold text-sm">
-                              {c.user.username}
-                            </p>
-                            <p className="mt-1 text-gray-300 text-sm">
-                              {c.text}
-                            </p>
-                          </div>
-                          <div className="flex gap-3 text-gray-400 mt-2 sm:mt-0">
-                            {/* Like Comment */}
-                            <button
-                              onClick={() =>
-                                handleToggleLikeComment(c._id)
-                              }
-                              className="flex items-center gap-1 text-sm"
-                            >
-                              <FiThumbsUp
-                                className={
-                                  commentLiked ? "text-pink-500" : ""
-                                }
-                              />
-                              <span>{c.likes.length}</span>
-                            </button>
-
-                            {/* Dislike Comment */}
-                            <button
-                              onClick={() =>
-                                handleToggleDislikeComment(c._id)
-                              }
-                              className="flex items-center gap-1 text-sm"
-                            >
-                              <FiThumbsDown
-                                className={
-                                  commentDisliked ? "text-pink-500" : ""
-                                }
-                              />
-                              <span>{c.dislikes.length}</span>
-                            </button>
-
-                            {/* Report Comment */}
-                            <button
-                              onClick={() => handleReportComment(c._id)}
-                              className="hover:text-pink-400 transition text-sm"
-                            >
-                              <FiFlag />
-                            </button>
-
-                            {/* Delete Comment */}
-                            {isCommentAuthor && (
-                              <button
-                                onClick={() =>
-                                  handleDeleteComment(c._id, c.user._id)
-                                }
-                                className="hover:text-red-500 transition ml-1 text-sm"
-                              >
-                                <FiTrash2 />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-
-                  {/* Add Comment Input */}
-                  {authUser ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={commentTextByReview[r._id] || ""}
-                        onChange={(e) =>
-                          setCommentTextByReview((prev) => ({
-                            ...prev,
-                            [r._id]: e.target.value,
-                          }))
-                        }
-                        placeholder="Write a comment…"
-                        className="flex-1 bg-gray-800 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                      />
-                      <motion.button
-                        onClick={() => handleSubmitComment(r._id)}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="text-pink-500 hover:text-pink-400 transition"
-                      >
-                        <FiSend size={20} />
-                      </motion.button>
-                    </div>
-                  ) : (
-                    <p className="text-gray-400 text-sm">
-                      <a
-                        href="/login"
-                        className="text-pink-500 underline"
-                      >
-                        Log in
-                      </a>{" "}
-                      to comment.
-                    </p>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Create Review Form */}
-        {authUser ? (
-          <motion.div
-            className="mt-12 bg-gray-800 p-6 rounded-xl border border-gray-700"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
-          >
-            <h3 className="text-xl lg:text-2xl font-semibold mb-4">
-              Write a Review
-            </h3>
-            <form
-              onSubmit={handleSubmitReview}
-              className="space-y-4"
-            >
-              <div>
-                <label className="block mb-1">Rating (1–5):</label>
-                <select
-                  value={reviewRating}
-                  onChange={(e) =>
-                    setReviewRating(+e.target.value)
-                  }
-                  className="bg-gray-700 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-pink-500"
-                >
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block mb-1">
-                  Your Review:
-                </label>
-                <textarea
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  rows={4}
-                  className="w-full bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  required
-                />
-              </div>
-              <motion.button
-                type="submit"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold transition"
-              >
-                Submit Review
-              </motion.button>
-            </form>
-          </motion.div>
-        ) : (
-          <p className="mt-6 text-gray-400">
-            <a href="/login" className="text-pink-500 underline">
-              Log in
-            </a>{" "}
-            to write a review.
-          </p>
-        )}
-      </section>
+      <ReviewSection productId={product._id} authUser={authUser} />
 
       {/* Report Prompt Modal */}
       {showReportPrompt && (
@@ -731,5 +455,6 @@ export default function ProductPage() {
         </div>
       )}
     </main>
+    </div>
   );
 }

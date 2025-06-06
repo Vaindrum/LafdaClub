@@ -268,7 +268,7 @@ export default function BillingPage() {
   // ──────────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-6 py-10">
-      <div className="max-w-2xl w-full bg-gray-800 rounded-2xl p-6 space-y-6 text-white">
+      <div className="max-w-2xl w-full bg-gray-800 rounded-2xl p-6 space-y-6 text-white mt-8">
         <h1 className="text-3xl font-bold text-center mb-4">
           {isCartFlow ? "Checkout Your Cart" : "Checkout Product"}
         </h1>
@@ -352,7 +352,7 @@ export default function BillingPage() {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               className="w-full px-3 py-2 rounded-xl bg-gray-700 focus:outline-none resize-none"
-              rows={3}
+              rows={2}
             />
           </div>
 
