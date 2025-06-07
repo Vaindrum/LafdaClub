@@ -368,7 +368,7 @@ export default function PlayGamePage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Start Battle
+                Simulate Battle
               </motion.button>
               <motion.button
                 onClick={() => randomizeAll()}
@@ -565,7 +565,7 @@ export default function PlayGamePage() {
             onClick={handleBattleStart}
             className="w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-lg font-bold"
           >
-            Start Battle
+            Simulate Battle
           </button>
           <button
             onClick={() => randomizeAll()}
@@ -583,7 +583,7 @@ export default function PlayGamePage() {
           {winner && (<p className="bg-pink-700 drop-shadow-2xl p-3 rounded-lg mx-auto w-fit px-6 flex gap-3"><FaCrown size={20} />{winner} WINS <FaCrown size={20}/></p>)}
 
         {/* Stats & Leaderboard */}
-        <div className="mt-6 flex flex-col gap-3 mb-20">
+        <div className="mt-6 flex flex-col gap-3 mb-20" ref={sectionRef}>
           <button className="bg-gray-800 hover:bg-gray-700 py-2 rounded-lg font-medium" onClick={handleYourStats}>
             Your Stats
           </button>

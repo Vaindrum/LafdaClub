@@ -35,7 +35,7 @@ export default function LoginModal() {
           <FiX size={20} />
         </button>
 
-        <h2 className="text-xl font-bold text-center text-white">Use an Existing Account...</h2>
+        <h2 className="text-xl font-bold text-center text-white">Log In</h2>
 
         <input
           type="text"

@@ -37,7 +37,7 @@ export default function SignupModal() {
           <FiX size={20} />
         </button>
 
-        <h2 className="text-xl font-bold text-center text-white">Create a New Account...</h2>
+        <h2 className="text-xl font-bold text-center text-white">Sign Up</h2>
 
         <input
           type="text"
