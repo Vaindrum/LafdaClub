@@ -41,6 +41,7 @@ export default function BillingPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(isCartFlow ? false : true);
   const [errorProduct, setErrorProduct] = useState<string | null>(null);
+    const [busy, setBusy] = useState(false);
 
   // ──────────────────────────────────────────────────────────────────────────
   // State specific to “cart‐checkout”:
@@ -73,7 +74,7 @@ export default function BillingPage() {
       const fetchProduct = async () => {
         try {
           const { data } = await axiosInstance.get(`product/${productId}`);
-          setProduct(data);
+          setProduct(data.product);
         } catch (err) {
           console.error("Could not load product:", err);
           setErrorProduct("Could not load product.");
@@ -112,6 +113,7 @@ export default function BillingPage() {
   // ──────────────────────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+   
 
     // If cart flow but cart is empty, abort:
     if (isCartFlow && cartItems.length === 0) {
@@ -129,6 +131,8 @@ export default function BillingPage() {
       // 3a) Call backend “create-order”
       //   • If direct‐buy: send { productId }
       //   • If cart‐checkout: send {}
+       if(busy) return;
+    setBusy(true);
       const createBody = isCartFlow
         ? {}
         : { productId: product!._id };
@@ -208,7 +212,9 @@ export default function BillingPage() {
 
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
+      setBusy(false);
     } catch (err) {
+      setBusy(false);
       console.error("Could not create order:", err);
       alert("Could not create order. Try again.");
     }
@@ -381,7 +387,7 @@ export default function BillingPage() {
 
           <button
             type="submit"
-            className="w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-xl font-semibold transition"
+            className={`w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-xl font-semibold transition ${busy ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             Continue to Payment
           </button>
