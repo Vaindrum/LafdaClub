@@ -205,7 +205,7 @@ export default function Home() {
             <MdArrowForwardIos size={20} />
           </motion.button>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 px-8 -mt-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 -mt-10">
             <AnimatePresence initial={false} mode="wait">
               {visibleProducts.map((product) => (
                 <motion.div
@@ -230,9 +230,10 @@ export default function Home() {
                   />
 
                   {/* Dark overlay on hover */}
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300" />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-colors duration-300" />
 
                   {/* Name & Price */}
+
                   <motion.div
                     className="absolute bottom-2 left-3 text-white text-sm font-semibold max-w-[50%] truncate"
                     variants={cardVariants}
@@ -243,7 +244,7 @@ export default function Home() {
                     {product.name}
                   </motion.div>
                   <motion.div
-                    className="absolute bottom-2 right-3 text-pink-400 text-sm font-bold"
+                    className="absolute bottom-2 right-3 text-pink-700 text-sm font-bold"
                     variants={cardVariants}
                     initial="hidden"
                     animate="visible"
@@ -251,9 +252,8 @@ export default function Home() {
                     >
                     ₹{product.price}
                   </motion.div>
+                      </motion.div>
 
-                  
-                </motion.div>
               ))}
             </AnimatePresence>
           </div>

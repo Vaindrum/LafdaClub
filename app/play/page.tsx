@@ -488,7 +488,7 @@ export default function PlayGamePage() {
         </div>
 
         {/* Weapon 1, Announcer, Weapon 2 (three columns) */}
-        <div className="flex gap-2 items-center justify-center">
+        <div className="flex gap-2 items-center justify-between mx-2">
         <div className="bg-black/50 p-2 w-fit rounded-lg">
           <SelectionBox
             boxId="w1"
@@ -541,7 +541,7 @@ export default function PlayGamePage() {
 
         {/* Stage (full width) */}
         <div className="flex items-center justify-center">
-        <div className="bg-black/50 p-2 w-fit rounded-lg">
+        <div className="bg-black/50 p-2 w-50 rounded-lg">
         <SelectionBox
           boxId="stage"
           isOpen={openBoxId === "stage"}
