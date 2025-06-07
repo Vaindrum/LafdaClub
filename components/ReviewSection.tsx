@@ -543,7 +543,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       {/* ─── Write a New Review Form ─────────────────────────────────────────────── */}
       {authUser ? (
         <motion.div
-          className="mt-12 bg-gray-800/80 p-6 rounded-xl md:w-200 mx-auto mb-10 md:mb-0"
+          className="mt-12 bg-gray-800/80 p-6 rounded-xl md:w-180 mx-auto mb-10 md:mb-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.4 }}

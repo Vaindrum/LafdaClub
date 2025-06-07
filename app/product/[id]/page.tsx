@@ -6,14 +6,9 @@ import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/stores/useAuthStore";
 import StarRating from "@/components/StarRating";
 import ReviewSection from "@/components/ReviewSection";
-import {
-  FiThumbsUp,
-  FiThumbsDown,
-  FiTrash2,
-  FiFlag,
-  FiSend,
-} from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 type Product = {
   _id: string;
@@ -42,13 +37,18 @@ type Review = {
   comments: Comment[];
 };
 
+const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL"];
+
 export default function ProductPage() {
   const router = useRouter();
   const { id } = useParams(); // productId
   const { authUser } = useAuthStore(); // { _id, username } or null
   const [product, setProduct] = useState<Product | null>(null);
+  const [recommended, setRecommended] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+    const [selectedSize, setSelectedSize] = useState<string | "M">("M");
+  const [showSizeChart, setShowSizeChart] = useState(false);
 
   // New state for comment inputs, keyed by reviewId
   const [commentTextByReview, setCommentTextByReview] = useState<{
@@ -57,9 +57,7 @@ export default function ProductPage() {
 
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
-  const [showReportPrompt, setShowReportPrompt] = useState<
-    { reviewId: string } | null
-  >(null);
+  const [showReportPrompt, setShowReportPrompt] = useState<{ reviewId: string } | null>(null);
   const [reportReason, setReportReason] = useState("");
 
   // 1) Fetch product data
@@ -67,7 +65,8 @@ export default function ProductPage() {
     const fetchProduct = async () => {
       try {
         const { data } = await axiosInstance.get(`product/${id}`);
-        setProduct(data);
+        setProduct(data.product);
+        setRecommended(data.recommended || []);
       } catch (err) {
         console.error("Error fetching product:", err);
       }
@@ -385,6 +384,30 @@ export default function ProductPage() {
           </p>
           <p className="text-gray-300">{product.description}</p>
           <p className="text-sm text-gray-500">Category: {product.category}</p>
+
+{/* Size Selection */}
+            <div>
+              <h4 className="font-medium mb-2">Select Size:</h4>
+              <div className="flex gap-2 flex-wrap">
+                {SIZE_OPTIONS.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-3 py-2 rounded-lg font-semibold transition cursor-pointer
+                      ${selectedSize === size ? "bg-pink-600 text-white" : "bg-gray-800 text-gray-300"}`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowSizeChart(true)}
+                className="mt-2 text-sm text-pink-500 underline hover:text-pink-400"
+              >
+                View Size Chart
+              </button>
+            </div>
+
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <motion.button
               onClick={() => router.push(`/billing/${product._id}`)}
@@ -399,6 +422,7 @@ export default function ProductPage() {
                 axiosInstance.post("cart/add", {
                   productId: product._id,
                   quantity: 1,
+                  size: selectedSize
                 })
               }
               className="border border-pink-600 hover:bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition cursor-pointer"
@@ -413,6 +437,34 @@ export default function ProductPage() {
 
       {/* Reviews Section */}
       <ReviewSection productId={product._id} authUser={authUser} />
+
+      {/* You May Also Like */}
+        {recommended.length > 0 && (
+          <section className="mt-16">
+            <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {recommended.map((rec) => (
+                <Link
+                  key={rec._id}
+                  href={`/product/${rec._id}`}
+                  className=" hover:shadow-lg transition"
+                >
+                  <img
+                    src={rec.images[0]}
+                    alt={rec.name}
+                    className="w-full h-32 object-cover rounded"
+                  />
+                  <h3 className="mt-2 font-semibold text-sm truncate">
+                    {rec.name}
+                  </h3>
+                  <p className="text-pink-400 font-semibold">
+                    ₹{rec.price.toLocaleString("en-IN")}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
       {/* Report Prompt Modal */}
       {showReportPrompt && (
@@ -454,6 +506,48 @@ export default function ProductPage() {
           </motion.div>
         </div>
       )}
+
+       {/* Size Chart Modal */}
+        {showSizeChart && (
+          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+            <motion.div
+              className="bg-white dark:bg-gray-800 p-6 rounded-xl max-w-lg w-full mx-4"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="flex justify-between">
+
+              <h3 className="text-xl font-semibold mb-4">Size Chart</h3>
+              <div className="text-right">
+                <button
+                  onClick={() => setShowSizeChart(false)}
+                  className="px-2 py-2 bg-gray-600 text-white rounded-full hover:bg-pink-500 cursor-pointer"
+                  >
+                  <FiX size={20}/>
+                </button>
+                  </div>
+              </div>
+              <table className="w-full text-left table-auto mb-4">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2">Size</th>
+                    <th className="px-4 py-2">Chest (inches)</th>
+                    <th className="px-4 py-2">Waist (inches)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td className="px-4 py-1">XS</td><td className="px-4 py-1">32-34</td><td className="px-4 py-1">26-28</td></tr>
+                  <tr><td className="px-4 py-1">S</td><td className="px-4 py-1">34-36</td><td className="px-4 py-1">28-30</td></tr>
+                  <tr><td className="px-4 py-1">M</td><td className="px-4 py-1">38-40</td><td className="px-4 py-1">32-34</td></tr>
+                  <tr><td className="px-4 py-1">L</td><td className="px-4 py-1">42-44</td><td className="px-4 py-1">36-38</td></tr>
+                  <tr><td className="px-4 py-1">XL</td><td className="px-4 py-1">46-48</td><td className="px-4 py-1">40-42</td></tr>
+                  <tr><td className="px-4 py-1">XXL</td><td className="px-4 py-1">50-52</td><td className="px-4 py-1">44-46</td></tr>
+                </tbody>
+              </table>
+            </motion.div>
+          </div>
+        )}
     </main>
     </div>
   );
