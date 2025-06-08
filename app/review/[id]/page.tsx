@@ -40,8 +40,12 @@ export default function ReviewPage() {
   const { authUser } = useAuthStore(); // { _id, username } or null
   const [review, setReview] = useState<Review | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showReportPrompt, setShowReportPrompt] = useState<boolean>(false);
-  const [reportReason, setReportReason] = useState("");
+  const [showReportReviewPrompt, setShowReportReviewPrompt] = useState<boolean>(false);
+  const [showReportCommentPrompt, setShowReportCommentPrompt] = useState<{commentId: string;} | null>(null);
+  const [showDeleteReviewPrompt, setShowDeleteReviewPrompt] = useState<boolean>(false);
+  const [showDeleteCommentPrompt, setShowDeleteCommentPrompt] = useState<{commentId: string, authorId: string;} | null>(null);
+  const [reportReviewReason, setReportReviewReason] = useState("");
+  const [reportCommentReason, setReportCommentReason] = useState("");
   const [commentText, setCommentText] = useState("");
   const {openLogin} = useModalStore();
 
@@ -73,6 +77,7 @@ export default function ReviewPage() {
     }
     try {
       await axiosInstance.delete(`review/delete/${id}`);
+      setShowDeleteReviewPrompt(false);
       alert("Review deleted.");
       router.push("/"); // navigate away after deletion
     } catch (err) {
@@ -86,14 +91,14 @@ export default function ReviewPage() {
       openLogin();
       return;
     }
-    if (!reportReason.trim()) return;
+    if (!reportReviewReason.trim()) return;
     try {
       await axiosInstance.post("review/report", {
         reviewId: id,
-        reason: reportReason,
+        reason: reportReviewReason,
       });
-      setShowReportPrompt(false);
-      setReportReason("");
+      setShowReportReviewPrompt(false);
+      setReportReviewReason("");
       alert("Review reported.");
     } catch (err) {
       console.error("Error reporting review:", err);
@@ -147,17 +152,19 @@ export default function ReviewPage() {
   };
 
   // Delete a comment
-  const handleDeleteComment = async (commentId: string, authorId: string) => {
+   const handleDeleteComment = async (commentId: string, authorId: string) => {
     if (!authUser) {
       openLogin();
       return;
     }
     if (authUser._id !== authorId) {
-      alert("You can only delete your own comments.");
+      alert("You can only delete your own comment.");
       return;
     }
     try {
       await axiosInstance.delete(`comment/delete/${commentId}`);
+      setShowDeleteCommentPrompt(null);
+      alert("Comment deleted.");
       fetchReview();
     } catch (err) {
       console.error("Error deleting comment:", err);
@@ -165,21 +172,25 @@ export default function ReviewPage() {
   };
 
   // Report a comment
-  const handleReportComment = async (commentId: string) => {
+   const handleReportComment = async (commentId: string) => {
     if (!authUser) {
       openLogin();
       return;
     }
-    const reason = prompt("Reason for reporting:");
-    if (!reason?.trim()) return;
+    if (!reportCommentReason.trim()) return;
     try {
-      await axiosInstance.post("comment/report", { commentId, reason });
+      await axiosInstance.post("comment/report", {
+        commentId: commentId,
+        reason: reportCommentReason,
+      });
+      setShowReportCommentPrompt(null);
+      setReportCommentReason("");
       alert("Comment reported.");
-      fetchReview();
     } catch (err) {
       console.error("Error reporting comment:", err);
     }
   };
+  
 
   // Like / Dislike comment
   const handleToggleLikeComment = async (commentId: string) => {
@@ -263,12 +274,12 @@ export default function ReviewPage() {
               <span>{review.dislikes.length}</span>
             </button>
             {/* Report Review */}
-            <button className="cursor-pointer hover:text-red-500" onClick={() => setShowReportPrompt(true)}>
+            <button className="cursor-pointer hover:text-red-500" onClick={() => setShowReportReviewPrompt(true)}>
               <FiFlag />
             </button>
             {/* Delete Review */}
             {authUser?._id === review.user._id && (
-              <button onClick={handleDeleteReview} className="ml-2 cursor-pointer hover:text-red-500">
+              <button onClick={() => setShowDeleteReviewPrompt(true)} className="ml-2 cursor-pointer hover:text-red-500">
                 <FiTrash2 />
               </button>
             )}
@@ -327,7 +338,7 @@ export default function ReviewPage() {
                     </button>
                     {/* Report Comment */}
                     <button
-                      onClick={() => handleReportComment(c._id)}
+                      onClick={() => setShowReportCommentPrompt({commentId: c._id})}
                       className="text-sm cursor-pointer hover:text-red-500"
                     >
                       <FiFlag />
@@ -336,7 +347,7 @@ export default function ReviewPage() {
                     {isCommentAuthor && (
                       <button
                         onClick={() =>
-                          handleDeleteComment(c._id, c.user._id)
+                          setShowDeleteCommentPrompt({commentId: c._id, authorId:c.user._id})
                         }
                         className="ml-1 text-sm cursor-pointer hover:text-red-500"
                       >
@@ -377,7 +388,7 @@ export default function ReviewPage() {
         )}
 
         {/* Report Prompt Modal */}
-        {showReportPrompt && (
+        {showReportReviewPrompt && (
           <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
             <motion.div
               className="bg-gray-900 p-6 rounded-xl w-[90%] max-w-md"
@@ -389,8 +400,8 @@ export default function ReviewPage() {
                 Report Review
               </h4>
               <textarea
-                value={reportReason}
-                onChange={(e) => setReportReason(e.target.value)}
+                value={reportReviewReason}
+                onChange={(e) => setReportReviewReason(e.target.value)}
                 rows={3}
                 className="w-full bg-gray-800 px-3 py-2 rounded-lg mb-4"
                 placeholder="Reason for reporting"
@@ -398,8 +409,8 @@ export default function ReviewPage() {
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => {
-                    setShowReportPrompt(false);
-                    setReportReason("");
+                    setShowReportReviewPrompt(false);
+                    setReportReviewReason("");
                   }}
                   className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
                 >
@@ -410,6 +421,113 @@ export default function ReviewPage() {
                   className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
                 >
                   Submit Report
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {showReportCommentPrompt && (
+          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+            <motion.div
+              className="bg-gray-900 p-6 rounded-xl w-[90%] max-w-md"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h4 className="text-lg font-semibold mb-3">
+                Report Comment
+              </h4>
+              <textarea
+                value={reportCommentReason}
+                onChange={(e) => setReportCommentReason(e.target.value)}
+                rows={3}
+                className="w-full bg-gray-800 px-3 py-2 rounded-lg mb-4"
+                placeholder="Reason for reporting"
+              />
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowReportCommentPrompt(null);
+                    setReportCommentReason("");
+                  }}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleReportComment(showReportCommentPrompt.commentId)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
+                >
+                  Submit Report
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {showDeleteReviewPrompt && (
+          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+            <motion.div
+              className="bg-gray-900 p-6 rounded-xl w-[90%] max-w-md"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h4 className="text-lg font-semibold mb-3">
+                Confirm Delete Review
+              </h4>
+              <div className="pb-10">
+                Are you sure you want to delete your review?
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteReviewPrompt(false);
+                  }}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteReview}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {showDeleteCommentPrompt && (
+          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+            <motion.div
+              className="bg-gray-900 p-6 rounded-xl w-[90%] max-w-md"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h4 className="text-lg font-semibold mb-3">
+                Confirm Delete Comment
+              </h4>
+              <div className="pb-10">
+                Are you sure you want to delete your comment?
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteCommentPrompt(null);
+                  }}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteComment(showDeleteCommentPrompt.commentId, showDeleteCommentPrompt.authorId)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
+                >
+                  Delete
                 </button>
               </div>
             </motion.div>

@@ -573,7 +573,7 @@ export default function PlayGamePage() {
             onClick={handleBattleStart}
             className={`w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-lg font-bold ${busy ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
-            Simulate Battle
+                {busy ? "Simulating..." : "Simulate Battle"}
           </button>
           <button
             onClick={() => randomizeAll()}

@@ -62,10 +62,13 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   const [reviewRating, setReviewRating] = useState(5);
 
   // Report‐review prompt state
-  const [showReportPrompt, setShowReportPrompt] = useState<{
-    reviewId: string;
-  } | null>(null);
-  const [reportReason, setReportReason] = useState("");
+  const [showReportReviewPrompt, setShowReportReviewPrompt] = useState<{reviewId: string;} | null>(null);
+  const [showReportCommentPrompt, setShowReportCommentPrompt] = useState<{commentId: string;} | null>(null);
+  const [showDeleteReviewPrompt, setShowDeleteReviewPrompt] = useState<{reviewId: string, authorId: string;} | null>(null);
+  const [showDeleteCommentPrompt, setShowDeleteCommentPrompt] = useState<{commentId: string, authorId: string;} | null>(null);
+  const [reportReviewReason, setReportReviewReason] = useState("");
+  const [reportCommentReason, setReportCommentReason] = useState("");
+
 
   // ─── 1) Fetch all reviews for this product ─────────────────────────────────
   useEffect(() => {
@@ -121,6 +124,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
     try {
       await axiosInstance.delete(`review/delete/${reviewId}`);
       setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+      setShowDeleteReviewPrompt(null);
     } catch (err) {
       console.error("Error deleting review:", err);
     }
@@ -182,16 +186,16 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   };
 
   // ─── 5) Report a review ──────────────────────────────────────────────────────
-  const handleSubmitReport = async (reviewId: string) => {
+  const handleReportReview = async (reviewId: string) => {
     if (!authUser) {
       openLogin();
       return;
     }
-    if (!reportReason.trim()) return;
+    if (!reportReviewReason.trim()) return;
     try {
-      await axiosInstance.post("review/report", { reviewId, reason: reportReason });
-      setShowReportPrompt(null);
-      setReportReason("");
+      await axiosInstance.post("review/report", { reviewId, reason: reportReviewReason });
+      setShowReportReviewPrompt(null);
+      setReportReviewReason("");
       alert("Review reported.");
     } catch (err) {
       console.error("Error reporting review:", err);
@@ -237,6 +241,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       await axiosInstance.delete(`comment/delete/${commentId}`);
       const { data } = await axiosInstance.get(`review/reviews/${productId}`);
       setReviews(data);
+      setShowDeleteCommentPrompt(null);
     } catch (err) {
       console.error("Error deleting comment:", err);
     }
@@ -248,10 +253,11 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       openLogin();
       return;
     }
-    const reason = prompt("Reason for reporting:");
-    if (!reason?.trim()) return;
+    if (!reportCommentReason.trim()) return;
     try {
-      await axiosInstance.post("comment/report", { commentId, reason });
+      await axiosInstance.post("comment/report", { commentId, reason: reportCommentReason });
+      setShowReportCommentPrompt(null);
+      setReportCommentReason("");
       alert("Comment reported.");
     } catch (err) {
       console.error("Error reporting comment:", err);
@@ -376,7 +382,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                       if (!authUser) {
                         alert("Please log in to report reviews.");
                       } else {
-                        setShowReportPrompt({ reviewId: r._id });
+                        setShowReportReviewPrompt({ reviewId: r._id });
                       }
                     }}
                     className="hover:text-red-500 transition cursor-pointer"
@@ -387,7 +393,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                   {/* Delete Review (if author) */}
                   {isAuthor && (
                     <button
-                      onClick={() => handleDeleteReview(r._id, r.user._id)}
+                      onClick={() => setShowDeleteReviewPrompt({reviewId:r._id, authorId: r.user._id})}
                       className="hover:text-red-500 transition cursor-pointer"
                     >
                       <FiTrash2 />
@@ -458,7 +464,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
 
                             {/* Report Comment */}
                             <button
-                              onClick={() => handleReportComment(c._id)}
+                              onClick={() => setShowReportCommentPrompt({commentId: c._id})}
                               className="hover:text-red-500 transition text-sm cursor-pointer"
                             >
                               <FiFlag />
@@ -468,7 +474,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                             {isCommentAuthor && (
                               <button
                                 onClick={() =>
-                                  handleDeleteComment(c._id, c.user._id)
+                                  setShowDeleteCommentPrompt({commentId:c._id, authorId: c.user._id})
                                 }
                                 className="hover:text-red-500 transition ml-1 text-sm cursor-pointer"
                               >
@@ -591,7 +597,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       )}
 
       {/* ─── Report Prompt Modal ──────────────────────────────────────────────────── */}
-      {showReportPrompt && (
+      {showReportReviewPrompt && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 px-4">
           <motion.div
             className="bg-gray-900 p-6 rounded-xl w-full max-w-md"
@@ -601,28 +607,134 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
           >
             <h4 className="text-lg font-semibold mb-3">Report Review</h4>
             <textarea
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
+              value={reportReviewReason}
+              onChange={(e) => setReportReviewReason(e.target.value)}
               rows={3}
               className="w-full bg-gray-800 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 mb-4"
               placeholder="Reason for reporting"
             />
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => setShowReportPrompt(null)}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
+                onClick={() => setShowReportReviewPrompt(null)}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
               >
                 Cancel
               </button>
               <motion.button
                 onClick={() => {
-                  handleSubmitReport(showReportPrompt.reviewId);
+                  handleReportReview(showReportReviewPrompt.reviewId);
                 }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition"
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
               >
                 Submit Report
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {showReportCommentPrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 px-4">
+          <motion.div
+            className="bg-gray-900 p-6 rounded-xl w-full max-w-md"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h4 className="text-lg font-semibold mb-3">Report Comment</h4>
+            <textarea
+              value={reportCommentReason}
+              onChange={(e) => setReportCommentReason(e.target.value)}
+              rows={3}
+              className="w-full bg-gray-800 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 mb-4"
+              placeholder="Reason for reporting"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowReportCommentPrompt(null)}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <motion.button
+                onClick={() => {
+                  handleReportComment(showReportCommentPrompt.commentId);
+                }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
+              >
+                Submit Report
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {showDeleteReviewPrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 px-4">
+          <motion.div
+            className="bg-gray-900 p-6 rounded-xl w-full max-w-md"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h4 className="text-lg font-semibold mb-3">Confirm Delete Review</h4>
+            <div className="pb-10">
+              Are you sure you want to delete your review?
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteReviewPrompt(null)}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <motion.button
+                onClick={() => {
+                  handleDeleteReview(showDeleteReviewPrompt.reviewId, showDeleteReviewPrompt.authorId);
+                }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
+              >
+                Delete
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {showDeleteCommentPrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 px-4">
+          <motion.div
+            className="bg-gray-900 p-6 rounded-xl w-full max-w-md"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h4 className="text-lg font-semibold mb-3">Confirm Delete Comment</h4>
+            <div className="pb-10">
+              Are you sure you want to delete your comment?
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteCommentPrompt(null)}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <motion.button
+                onClick={() => {
+                  handleDeleteComment(showDeleteCommentPrompt.commentId, showDeleteCommentPrompt.authorId);
+                }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
+              >
+                Delete
               </motion.button>
             </div>
           </motion.div>
