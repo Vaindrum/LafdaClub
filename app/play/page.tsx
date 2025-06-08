@@ -44,6 +44,7 @@ export default function PlayGamePage() {
   const {authUser} = useAuthStore();
   const router = useRouter();
   const {openLogin} = useModalStore();
+  const sectionRefPC = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const [gameData, setGameData] = useState<GameData | null>(null);
@@ -55,6 +56,7 @@ export default function PlayGamePage() {
   const [announcer, setAnnouncer] = useState<GameData["announcers"][0] | null>(null);
   const [narration, setNarration] = useState<string>("");
   const [winner, setWinner] = useState<string>("");
+  const [busy, setBusy] = useState(false);
 
   // Which box is open? (null if none)
   const [openBoxId, setOpenBoxId] = useState<string | null>(null);
@@ -108,6 +110,7 @@ export default function PlayGamePage() {
       return;
     }
     try {
+      setBusy(true);
       const { data } = await axiosInstance.post("game/fight", {
         characterId1: p1,
         weaponId1: w1,
@@ -119,7 +122,10 @@ export default function PlayGamePage() {
       setNarration(data.result);
       setWinner(data.winner);
       sectionRef.current?.scrollIntoView({ behavior: "smooth" });
+      sectionRefPC.current?.scrollIntoView({ behavior: "smooth" });
+      setBusy(false);
     } catch (err) {
+      setBusy(false);
       alert("Battle failed to start.");
       console.error(err);
     }
@@ -362,13 +368,14 @@ export default function PlayGamePage() {
 
             <div className="flex flex-col space-y-4">
               <motion.button
+                disabled={busy}
                 onClick={handleBattleStart}
-                className="bg-pink-600 hover:bg-pink-500 px-20 py-2 rounded-xl font-bold cursor-pointer"
+                className={`bg-pink-600 hover:bg-pink-500 px-20 py-2 rounded-xl font-bold ${busy ? 'bg-pink-700 hover:bg-pink-800 opacity-50 cursor-not-allowed' : 'bg-pink-600 hover:bg-pink-500 cursor-pointer'}`}
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Simulate Battle
+                {busy ? "Simulating..." : "Simulate Battle"}
               </motion.button>
               <motion.button
                 onClick={() => randomizeAll()}
@@ -426,7 +433,7 @@ export default function PlayGamePage() {
         {/* Stats & Leaderboard Buttons */}
         <motion.div
           className="mt-10 flex justify-center gap-6"
-          ref={sectionRef}
+          ref={sectionRefPC}
           variants={itemVariants}
         >
           <motion.button
@@ -562,8 +569,9 @@ export default function PlayGamePage() {
         {/* Buttons */}
         <div className="space-y-3">
           <button
+            disabled={busy}
             onClick={handleBattleStart}
-            className="w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-lg font-bold"
+            className={`w-full bg-pink-600 hover:bg-pink-500 py-2 rounded-lg font-bold ${busy ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             Simulate Battle
           </button>

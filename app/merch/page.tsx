@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { axiosInstance } from "@/lib/axios";
+import Loading from "@/components/Loading";
+import { useModalStore } from "@/stores/useModalStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 type Product = {
   _id: string;
@@ -17,6 +20,8 @@ export default function MerchPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const {authUser} = useAuthStore();
+  const {openLogin} = useModalStore();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -33,6 +38,10 @@ export default function MerchPage() {
   }, []);
 
   const handleAddToCart = async (productId: string) => {
+    if(!authUser){
+      openLogin();
+      return;
+    }
     try {
       await axiosInstance.post("cart/add", { productId, quantity: 1, size: "M" });
       console.log("Added to Cart:", productId);
@@ -44,7 +53,7 @@ export default function MerchPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-        Loading…
+        <Loading />
       </div>
     );
   }
@@ -98,14 +107,20 @@ export default function MerchPage() {
                 {/* Overlay shows on hover (desktop only) */}
                 <div className="hidden md:flex absolute bottom-0 left-0 right-0 bg-black/50 p-2 justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    onClick={() => router.push(`/billing/${product._id}`)}
-                    className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-1 rounded-lg font-semibold transition"
+                    onClick={() => {
+                      if(!authUser){
+                        openLogin();
+                      }
+                      else{
+                        router.push(`/billing/${product._id}`)}
+                      }}
+                      className="bg-pink-600 hover:bg-pink-500 cursor-pointer text-white px-3 py-1 rounded-lg font-semibold transition"
                   >
                     Buy Now
                   </button>
                   <button
                     onClick={() => handleAddToCart(product._id)}
-                    className="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded-lg font-semibold transition"
+                    className="bg-green-600 hover:bg-green-500 cursor-pointer text-white px-3 py-1 rounded-lg font-semibold transition"
                   >
                     Add to Cart
                   </button>

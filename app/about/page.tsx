@@ -28,7 +28,7 @@ export default function AboutPage() {
           className="text-center"
         >
          
-          <h1 className="text-5xl font-extrabold tracking-widest text-pink-500 uppercase">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-widest text-pink-500 uppercase">
             About LafdaClub
           </h1>
           <p className="text-lg mt-4 max-w-2xl mx-auto text-gray-300">
@@ -42,7 +42,7 @@ export default function AboutPage() {
             {
               title: "What is LafdaClub?",
               text:
-                "LafdaClub is a brand. LafdaClub is the man of the people. I love LafdaClub. Wooooooooooo.",
+                "LafdaClub is a brand. LafdaClub is the man of smart people. I love LafdaClub. Wooooooooooo.",
             },
             {
               title: "Our Merch",
@@ -62,7 +62,7 @@ export default function AboutPage() {
             {
               title: "The Club",
               text:
-                "LafdaClub is a crew of internet kids who never grew up. You’re one of us now.",
+                "LafdaClub is a crew of dumbass internet kids who never grew up.",
             },
             {
               title: "Built Different",
@@ -87,7 +87,7 @@ export default function AboutPage() {
         </div>
 
         {/* Members section */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
@@ -96,7 +96,7 @@ export default function AboutPage() {
         >
           <h2 className="text-3xl font-bold text-pink-400 mb-6">Meet the Members</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 justify-center">
-            {["founder", "designer", "dev"].map((role, i) => (
+            {["developer", "printer", "delivery"].map((role, i) => (
               <div
                 key={i}
                 className="flex flex-col items-center bg-gray-800 p-4 rounded-xl border border-pink-500 shadow-lg"
@@ -112,17 +112,17 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </motion.div> */}
 
         {/* Socials */}
-        <div className="text-center pt-10 border-t border-gray-700">
+        <div className="text-center pb-10">
           <h3 className="text-xl font-semibold text-pink-300 mb-2">Join the Club</h3>
           <p className="text-gray-400 mb-4">Follow us on our socials</p>
           <div className="flex justify-center gap-6">
             {[
-              { icon: <FaTwitter/>,  href: "https://twitter.com/lafdaclub" },
+              // { icon: <FaTwitter/>,  href: "https://twitter.com/lafdaclub" },
               { icon: <FaInstagram/>,  href: "https://instagram.com/lafdaclub" },
-              { icon: <FaDiscord/>,  href: "https://discord.gg/lafdaclub" },
+              // { icon: <FaDiscord/>,  href: "https://discord.gg/lafdaclub" },
             ].map((social, i) => (
               <Link
                 key={i}

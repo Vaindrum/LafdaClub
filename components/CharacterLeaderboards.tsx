@@ -55,7 +55,7 @@ export default function CharacterLeaderboards() {
             </div>
             <div className="-mt-2 -mb-4 text-center bg-pink-700 py-4  px-2 w-20 h-25 rounded-t-2xl">
               <p className="font-semibold truncate">{topThree[1].name}</p>
-              <p className="text-yellow-300 text-xl">{topThree[1].winRatio * 100}%</p>
+              <p className="text-yellow-300 text-xl">{Math.round(topThree[1].winRatio * 100)}%</p>
             </div>
           </div>
         )}
@@ -78,7 +78,7 @@ export default function CharacterLeaderboards() {
             </div>
             <div className="-mt-2 text-center bg-pink-600 py-6 px-2 w-25 h-30 rounded-t-2xl">
               <p className="font-semibold truncate">{topThree[0].name}</p>
-              <p className="text-2xl text-yellow-300">{topThree[0].winRatio * 100}%</p>
+              <p className="text-2xl text-yellow-300">{Math.round(topThree[0].winRatio * 100)}%</p>
             </div>
           </div>
         )}
@@ -100,7 +100,7 @@ export default function CharacterLeaderboards() {
             </div>
             <div className="-mt-2 -mb-4 text-center bg-pink-800 py-6 px-2 w-20 h-20 rounded-t-2xl">
               <p className="font-semibold truncate">{topThree[2].name}</p>
-              <p className="text-yellow-300 text-lg">{topThree[2].winRatio * 100}%</p>
+              <p className="text-yellow-300 text-lg">{Math.round(topThree[2].winRatio * 100)}%</p>
             </div>
           </div>
         )}
@@ -136,7 +136,7 @@ export default function CharacterLeaderboards() {
               <div >
               </div>
               <div className='flex gap-5'>
-              <p className="font-semibold">{c.winRatio * 100}%</p>
+              <p className="font-semibold">{Math.round(c.winRatio * 100)}%</p>
               </div>
             </div>
           );

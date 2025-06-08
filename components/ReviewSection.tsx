@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import StarRating from "@/components/StarRating";
+import { useModalStore } from "@/stores/useModalStore";
 import {
   FiThumbsUp,
   FiThumbsDown,
@@ -42,6 +43,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const {openLogin} = useModalStore();
 
   // Pagination for reviews (show 3 at a time)
   const [visibleReviewCount, setVisibleReviewCount] = useState(3);
@@ -84,7 +86,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!authUser) {
-      alert("Please log in to submit a review.");
+      openLogin();
       return;
     }
     if (!reviewText.trim()) return;
@@ -109,7 +111,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 3) Delete a review ─────────────────────────────────────────────────────
   const handleDeleteReview = async (reviewId: string, authorId: string) => {
     if (!authUser) {
-      alert("Please log in to delete your review.");
+      openLogin();
       return;
     }
     if (authUser._id !== authorId) {
@@ -127,7 +129,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 4) Like / dislike a review ─────────────────────────────────────────────
   const handleToggleLike = async (reviewId: string) => {
     if (!authUser) {
-      alert("Please log in to like reviews.");
+      openLogin();
       return;
     }
     try {
@@ -155,7 +157,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
 
   const handleToggleDislike = async (reviewId: string) => {
     if (!authUser) {
-      alert("Please log in to dislike reviews.");
+      openLogin();
       return;
     }
     try {
@@ -182,7 +184,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 5) Report a review ──────────────────────────────────────────────────────
   const handleSubmitReport = async (reviewId: string) => {
     if (!authUser) {
-      alert("Please log in to report reviews.");
+      openLogin();
       return;
     }
     if (!reportReason.trim()) return;
@@ -199,7 +201,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 6) Submit a comment under a review ────────────────────────────────────
   const handleSubmitComment = async (reviewId: string) => {
     if (!authUser) {
-      alert("Please log in to comment.");
+      openLogin();
       return;
     }
     const text = commentTextByReview[reviewId]?.trim();
@@ -224,7 +226,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 7) Delete a comment ───────────────────────────────────────────────────
   const handleDeleteComment = async (commentId: string, commentAuthorId: string) => {
     if (!authUser) {
-      alert("Please log in to delete comments.");
+      openLogin();
       return;
     }
     if (authUser._id !== commentAuthorId) {
@@ -232,7 +234,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       return;
     }
     try {
-      await axiosInstance.delete(`comment/${commentId}`);
+      await axiosInstance.delete(`comment/delete/${commentId}`);
       const { data } = await axiosInstance.get(`review/reviews/${productId}`);
       setReviews(data);
     } catch (err) {
@@ -243,7 +245,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 8) Report a comment ────────────────────────────────────────────────────
   const handleReportComment = async (commentId: string) => {
     if (!authUser) {
-      alert("Please log in to report comments.");
+      openLogin();
       return;
     }
     const reason = prompt("Reason for reporting:");
@@ -259,7 +261,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 9) Like / dislike a comment ────────────────────────────────────────────
   const handleToggleLikeComment = async (commentId: string) => {
     if (!authUser) {
-      alert("Please log in to like comments.");
+      openLogin();
       return;
     }
     try {
@@ -273,7 +275,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
 
   const handleToggleDislikeComment = async (commentId: string) => {
     if (!authUser) {
-      alert("Please log in to dislike comments.");
+      openLogin();
       return;
     }
     try {
@@ -353,18 +355,18 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                   {/* Like Review */}
                   <button
                     onClick={() => handleToggleLike(r._id)}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 cursor-pointer"
                   >
-                    <FiThumbsUp className={userLiked ? "text-pink-500" : ""} />
+                    <FiThumbsUp className={userLiked ? "text-pink-500 fill-pink-500" : ""} />
                     <span>{r.likes.length}</span>
                   </button>
 
                   {/* Dislike Review */}
                   <button
                     onClick={() => handleToggleDislike(r._id)}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 cursor-pointer"
                   >
-                    <FiThumbsDown className={userDisliked ? "text-pink-500" : ""} />
+                    <FiThumbsDown className={userDisliked ? "text-pink-500 fill-pink-500" : ""} />
                     <span>{r.dislikes.length}</span>
                   </button>
 
@@ -377,7 +379,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                         setShowReportPrompt({ reviewId: r._id });
                       }
                     }}
-                    className="hover:text-pink-400 transition"
+                    className="hover:text-red-500 transition cursor-pointer"
                   >
                     <FiFlag />
                   </button>
@@ -386,7 +388,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                   {isAuthor && (
                     <button
                       onClick={() => handleDeleteReview(r._id, r.user._id)}
-                      className="hover:text-red-500 transition"
+                      className="hover:text-red-500 transition cursor-pointer"
                     >
                       <FiTrash2 />
                     </button>
@@ -435,10 +437,10 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                             {/* Like Comment */}
                             <button
                               onClick={() => handleToggleLikeComment(c._id)}
-                              className="flex items-center gap-1 text-sm"
+                              className="flex items-center gap-1 text-sm cursor-pointer"
                             >
                               <FiThumbsUp
-                                className={commentLiked ? "text-pink-500" : ""}
+                                className={commentLiked ? "text-pink-500 fill-pink-500" : ""}
                               />
                               <span>{c.likes.length}</span>
                             </button>
@@ -446,10 +448,10 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                             {/* Dislike Comment */}
                             <button
                               onClick={() => handleToggleDislikeComment(c._id)}
-                              className="flex items-center gap-1 text-sm"
+                              className="flex items-center gap-1 text-sm cursor-pointer"
                             >
                               <FiThumbsDown
-                                className={commentDisliked ? "text-pink-500" : ""}
+                                className={commentDisliked ? "text-pink-500 fill-pink-500" : ""}
                               />
                               <span>{c.dislikes.length}</span>
                             </button>
@@ -457,7 +459,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                             {/* Report Comment */}
                             <button
                               onClick={() => handleReportComment(c._id)}
-                              className="hover:text-pink-400 transition text-sm"
+                              className="hover:text-red-500 transition text-sm cursor-pointer"
                             >
                               <FiFlag />
                             </button>
@@ -468,7 +470,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                                 onClick={() =>
                                   handleDeleteComment(c._id, c.user._id)
                                 }
-                                className="hover:text-red-500 transition ml-1 text-sm"
+                                className="hover:text-red-500 transition ml-1 text-sm cursor-pointer"
                               >
                                 <FiTrash2 />
                               </button>
@@ -489,9 +491,12 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                     </button>
                   )}
 
-                  {/* Add Comment Input */}
+                
+                </div>
+              )}
+                {/* Add Comment Input */}
                   {authUser ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex mt-2 items-center gap-2">
                       <input
                         type="text"
                         value={commentTextByReview[r._id] || ""}
@@ -501,28 +506,26 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                             [r._id]: e.target.value,
                           }))
                         }
-                        placeholder="Write a comment…"
+                        placeholder={`Reply to ${r.user.username}`}
                         className="flex-1 bg-gray-800 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                       />
                       <motion.button
                         onClick={() => handleSubmitComment(r._id)}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        className="text-pink-500 hover:text-pink-400 transition"
+                        className="text-pink-500 hover:text-pink-400 transition cursor-pointer"
                       >
                         <FiSend size={20} />
                       </motion.button>
                     </div>
                   ) : (
-                    <p className="text-gray-400 text-sm">
-                      <a href="/login" className="text-pink-500 underline">
+                    <p className="text-gray-400 text-sm mt-2">
+                      <a className="text-pink-500 cursor-pointer" onClick={openLogin}>
                         Log in
                       </a>{" "}
                       to comment.
                     </p>
                   )}
-                </div>
-              )}
             </motion.div>
           );
         })}
@@ -580,7 +583,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
         </motion.div>
       ) : (
         <p className="mt-6 text-gray-400">
-          <a href="/login" className="text-pink-500 underline">
+          <a className="text-pink-500 cursor-pointer" onClick={openLogin}>
             Log in
           </a>{" "}
           to write a review.

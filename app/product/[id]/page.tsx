@@ -9,6 +9,8 @@ import ReviewSection from "@/components/ReviewSection";
 import { FiX } from "react-icons/fi";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Loading from "@/components/Loading"; 
+import { useModalStore } from "@/stores/useModalStore";
 
 type Product = {
   _id: string;
@@ -49,6 +51,7 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
     const [selectedSize, setSelectedSize] = useState<string | "M">("M");
   const [showSizeChart, setShowSizeChart] = useState(false);
+  const {openLogin} = useModalStore();
 
   // New state for comment inputs, keyed by reviewId
   const [commentTextByReview, setCommentTextByReview] = useState<{
@@ -89,11 +92,12 @@ export default function ProductPage() {
     fetchReviews();
   }, [id]);
 
+
   // 3) Submit a new review
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!authUser) {
-      alert("Please log in to submit a review.");
+      openLogin();
       return;
     }
     if (!reviewText.trim()) return;
@@ -116,7 +120,7 @@ export default function ProductPage() {
   // 4) Delete a review
   const handleDeleteReview = async (reviewId: string, authorId: string) => {
     if (!authUser) {
-      alert("Please log in to delete your review.");
+      openLogin();
       return;
     }
     if (authUser._id !== authorId) {
@@ -134,7 +138,7 @@ export default function ProductPage() {
   // 5) Like / dislike toggles for review
   const handleToggleLike = async (reviewId: string) => {
     if (!authUser) {
-      alert("Please log in to like reviews.");
+      openLogin();
       return;
     }
     try {
@@ -162,7 +166,7 @@ export default function ProductPage() {
 
   const handleToggleDislike = async (reviewId: string) => {
     if (!authUser) {
-      alert("Please log in to dislike reviews.");
+      openLogin();
       return;
     }
     try {
@@ -189,8 +193,8 @@ export default function ProductPage() {
   // 6) Report a review
   const handleSubmitReport = async (reviewId: string) => {
     if (!authUser) {
-      alert("Please log in to report reviews.");
-      return;
+      openLogin();
+      
     }
     if (!reportReason.trim()) return;
     try {
@@ -299,7 +303,7 @@ export default function ProductPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          Loading product…
+          <Loading />
         </motion.div>
       </div>
     );
@@ -343,9 +347,9 @@ export default function ProductPage() {
           <img
             src={product.images[0]}
             alt={product.name}
-            className="w-full h-auto max-h-[400px] object-cover rounded-xl border border-gray-700"
+            className="w-full h-auto max-h-[400px] object-contain bg-white rounded-xl border border-gray-700"
           />
-          <div className="flex gap-2 mt-4 overflow-x-auto">
+          <div className="flex gap-2 mt-4 overflow-hidden">
             {product.images.map((img, i) => (
               <motion.img
                 key={i}
@@ -402,7 +406,7 @@ export default function ProductPage() {
               </div>
               <button
                 onClick={() => setShowSizeChart(true)}
-                className="mt-2 text-sm text-pink-500 underline hover:text-pink-400"
+                className="mt-2 text-sm text-pink-500 cursor-pointer hover:text-pink-400"
               >
                 View Size Chart
               </button>
@@ -410,7 +414,13 @@ export default function ProductPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <motion.button
-              onClick={() => router.push(`/billing/${product._id}`)}
+              onClick={() => {
+                if(!authUser){
+                  openLogin();
+                }
+                else{
+                  router.push(`/billing/${product._id}`)}
+                }}
               className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold transition cursor-pointer"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -418,13 +428,17 @@ export default function ProductPage() {
               Buy Now
             </motion.button>
             <motion.button
-              onClick={() =>
+              onClick={() =>{
+              if(!authUser){
+                openLogin();
+              }
+              else{
                 axiosInstance.post("cart/add", {
                   productId: product._id,
                   quantity: 1,
                   size: selectedSize
                 })
-              }
+              }}}
               className="border border-pink-600 hover:bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition cursor-pointer"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}

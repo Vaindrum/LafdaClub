@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useModalStore } from "@/stores/useModalStore";
+import Loading from "@/components/Loading";
 import {
   FiThumbsUp,
   FiThumbsDown,
@@ -11,6 +13,7 @@ import {
   FiFlag,
   FiSend,
 } from "react-icons/fi";
+import { FaStar } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 type Comment = {
@@ -40,6 +43,7 @@ export default function ReviewPage() {
   const [showReportPrompt, setShowReportPrompt] = useState<boolean>(false);
   const [reportReason, setReportReason] = useState("");
   const [commentText, setCommentText] = useState("");
+  const {openLogin} = useModalStore();
 
   // For liking/disliking comments, re-fetch review after change
   const fetchReview = async () => {
@@ -60,7 +64,7 @@ export default function ReviewPage() {
   // Delete review
   const handleDeleteReview = async () => {
     if (!authUser) {
-      alert("Please log in to delete this review.");
+      openLogin();
       return;
     }
     if (authUser._id !== review?.user._id) {
@@ -79,7 +83,7 @@ export default function ReviewPage() {
   // Report review
   const handleReportReview = async () => {
     if (!authUser) {
-      alert("Please log in to report this review.");
+      openLogin();
       return;
     }
     if (!reportReason.trim()) return;
@@ -99,7 +103,7 @@ export default function ReviewPage() {
   // Like / Dislike review
   const handleToggleLikeReview = async () => {
     if (!authUser) {
-      alert("Please log in to like this review.");
+      openLogin();
       return;
     }
     try {
@@ -112,7 +116,7 @@ export default function ReviewPage() {
 
   const handleToggleDislikeReview = async () => {
     if (!authUser) {
-      alert("Please log in to dislike this review.");
+      openLogin();
       return;
     }
     try {
@@ -126,7 +130,7 @@ export default function ReviewPage() {
   // Add a comment
   const handleSubmitComment = async () => {
     if (!authUser) {
-      alert("Please log in to comment.");
+      openLogin();
       return;
     }
     if (!commentText.trim()) return;
@@ -145,7 +149,7 @@ export default function ReviewPage() {
   // Delete a comment
   const handleDeleteComment = async (commentId: string, authorId: string) => {
     if (!authUser) {
-      alert("Please log in to delete comments.");
+      openLogin();
       return;
     }
     if (authUser._id !== authorId) {
@@ -153,7 +157,7 @@ export default function ReviewPage() {
       return;
     }
     try {
-      await axiosInstance.delete(`comment/${commentId}`);
+      await axiosInstance.delete(`comment/delete/${commentId}`);
       fetchReview();
     } catch (err) {
       console.error("Error deleting comment:", err);
@@ -163,7 +167,7 @@ export default function ReviewPage() {
   // Report a comment
   const handleReportComment = async (commentId: string) => {
     if (!authUser) {
-      alert("Please log in to report comments.");
+      openLogin();
       return;
     }
     const reason = prompt("Reason for reporting:");
@@ -180,7 +184,7 @@ export default function ReviewPage() {
   // Like / Dislike comment
   const handleToggleLikeComment = async (commentId: string) => {
     if (!authUser) {
-      alert("Please log in to like comments.");
+      openLogin();
       return;
     }
     try {
@@ -193,7 +197,7 @@ export default function ReviewPage() {
 
   const handleToggleDislikeComment = async (commentId: string) => {
     if (!authUser) {
-      alert("Please log in to dislike comments.");
+      openLogin();
       return;
     }
     try {
@@ -207,7 +211,7 @@ export default function ReviewPage() {
   if (loading || !review) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-        Loading review…
+        <Loading />
       </div>
     );
   }
@@ -228,38 +232,43 @@ export default function ReviewPage() {
         {/* Review Header */}
         <div className="flex justify-between items-start">
           <div>
-            <p className="font-semibold text-lg">{review.user.username}</p>
+            <p className="font-semibold text-lg cursor-pointer" onClick={() => router.push(`/profile/${review.user.username}`)}>{review.user.username}</p>
             <p className="flex items-center text-yellow-400">
-              {"⭐".repeat(review.rating)}
-              <span className="ml-2 text-gray-400">({review.rating}/5)</span>
+              {Array.from({ length: 5 }, (_, i) => (
+                      <FaStar
+                        key={i}
+                        className={i < review.rating ? "text-yellow-500" : "hidden"}
+                      />
+                    ))}
+              {/* <span className="ml-2 text-gray-400">({review.rating}/5)</span> */}
             </p>
           </div>
           <div className="flex gap-4 text-gray-400">
             {/* Like Review */}
             <button
               onClick={handleToggleLikeReview}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 cursor-pointer"
             >
-              <FiThumbsUp className={userLiked ? "text-pink-500" : ""} />
+              <FiThumbsUp className={userLiked ? "text-pink-500 fill-pink-500" : ""} />
               <span>{review.likes.length}</span>
             </button>
             {/* Dislike Review */}
             <button
               onClick={handleToggleDislikeReview}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 cursor-pointer"
             >
               <FiThumbsDown
-                className={userDisliked ? "text-pink-500" : ""}
+                className={userDisliked ? "text-pink-500 fill-pink-500" : ""}
               />
               <span>{review.dislikes.length}</span>
             </button>
             {/* Report Review */}
-            <button onClick={() => setShowReportPrompt(true)}>
+            <button className="cursor-pointer hover:text-red-500" onClick={() => setShowReportPrompt(true)}>
               <FiFlag />
             </button>
             {/* Delete Review */}
             {authUser?._id === review.user._id && (
-              <button onClick={handleDeleteReview} className="ml-2">
+              <button onClick={handleDeleteReview} className="ml-2 cursor-pointer hover:text-red-500">
                 <FiTrash2 />
               </button>
             )}
@@ -288,7 +297,7 @@ export default function ReviewPage() {
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold text-sm">
+                    <p className="font-semibold text-sm cursor-pointer" onClick={() => router.push(`/profile/${c.user.username}`) }>
                       {c.user.username}
                     </p>
                     <p className="mt-1 text-gray-300 text-sm">
@@ -299,27 +308,27 @@ export default function ReviewPage() {
                     {/* Like Comment */}
                     <button
                       onClick={() => handleToggleLikeComment(c._id)}
-                      className="flex items-center gap-1 text-sm"
+                      className="flex items-center gap-1 text-sm cursor-pointer"
                     >
                       <FiThumbsUp
-                        className={commentLiked ? "text-pink-500" : ""}
+                        className={commentLiked ? "text-pink-500 fill-pink-500" : ""}
                       />
                       <span>{c.likes.length}</span>
                     </button>
                     {/* Dislike Comment */}
                     <button
                       onClick={() => handleToggleDislikeComment(c._id)}
-                      className="flex items-center gap-1 text-sm"
+                      className="flex items-center gap-1 text-sm cursor-pointer"
                     >
                       <FiThumbsDown
-                        className={commentDisliked ? "text-pink-500" : ""}
+                        className={commentDisliked ? "text-pink-500 fill-pink-500" : ""}
                       />
                       <span>{c.dislikes.length}</span>
                     </button>
                     {/* Report Comment */}
                     <button
                       onClick={() => handleReportComment(c._id)}
-                      className="text-sm"
+                      className="text-sm cursor-pointer hover:text-red-500"
                     >
                       <FiFlag />
                     </button>
@@ -329,7 +338,7 @@ export default function ReviewPage() {
                         onClick={() =>
                           handleDeleteComment(c._id, c.user._id)
                         }
-                        className="ml-1 text-sm"
+                        className="ml-1 text-sm cursor-pointer hover:text-red-500"
                       >
                         <FiTrash2 />
                       </button>
@@ -353,14 +362,14 @@ export default function ReviewPage() {
             />
             <button
               onClick={handleSubmitComment}
-              className="text-pink-500 hover:text-pink-400 transition"
+              className="text-pink-500 hover:text-pink-400 transition cursor-pointer"
             >
               <FiSend size={20} />
             </button>
           </div>
         ) : (
           <p className="mt-4 text-gray-400 text-sm">
-            <a href="/login" className="text-pink-500 underline">
+            <a className="text-pink-500 cursor-pointer" onClick={openLogin}>
               Log in
             </a>{" "}
             to comment.
@@ -392,13 +401,13 @@ export default function ReviewPage() {
                     setShowReportPrompt(false);
                     setReportReason("");
                   }}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleReportReview}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
                 >
                   Submit Report
                 </button>

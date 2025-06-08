@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
+import Loading from "@/components/Loading";
 
 type Product = {
   _id: string;
@@ -113,7 +114,7 @@ export default function CartPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-        <p>Loading cart…</p>
+        <p><Loading /></p>
       </div>
     );
   }
