@@ -22,6 +22,7 @@ export default function MerchPage() {
   const router = useRouter();
   const {authUser} = useAuthStore();
   const {openLogin} = useModalStore();
+  const [cartSubmit, setCartSubmit] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -43,9 +44,12 @@ export default function MerchPage() {
       return;
     }
     try {
+      setCartSubmit(true);
       await axiosInstance.post("cart/add", { productId, quantity: 1, size: "M" });
+      setCartSubmit(false); 
       console.log("Added to Cart:", productId);
     } catch (err) {
+      setCartSubmit(false); 
       console.error("Could not add to cart:", err);
     }
   };
@@ -119,10 +123,11 @@ export default function MerchPage() {
                     Buy Now
                   </button>
                   <button
+                  disabled={cartSubmit}
                     onClick={() => handleAddToCart(product._id)}
-                    className="bg-green-600 hover:bg-green-500 cursor-pointer text-white px-3 py-1 rounded-lg font-semibold transition"
+                    className={`bg-green-600 hover:bg-green-500 cursor-pointer text-white px-3 py-1 rounded-lg font-semibold transition ${cartSubmit ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
-                    Add to Cart
+                    {cartSubmit ? "Adding..." : "Add To Cart"}
                   </button>
                 </div>
               </div>

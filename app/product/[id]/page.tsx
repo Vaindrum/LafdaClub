@@ -52,14 +52,8 @@ export default function ProductPage() {
     const [selectedSize, setSelectedSize] = useState<string | "M">("M");
   const [showSizeChart, setShowSizeChart] = useState(false);
   const {openLogin} = useModalStore();
-
-  // New state for comment inputs, keyed by reviewId
-  const [commentTextByReview, setCommentTextByReview] = useState<{
-    [reviewId: string]: string;
-  }>({});
-
-  const [reviewText, setReviewText] = useState("");
-  const [reviewRating, setReviewRating] = useState(5);
+  const [cartSubmit, setCartSubmit] = useState(false);
+  
   const [showReportPrompt, setShowReportPrompt] = useState<{ reviewId: string } | null>(null);
   const [reportReason, setReportReason] = useState("");
 
@@ -92,109 +86,28 @@ export default function ProductPage() {
     fetchReviews();
   }, [id]);
 
-
-  // 3) Submit a new review
-  const handleSubmitReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!authUser) {
-      openLogin();
-      return;
-    }
-    if (!reviewText.trim()) return;
-
-    try {
-      await axiosInstance.post("review/create", {
-        productId: id,
-        text: reviewText,
-        rating: reviewRating,
-      });
-      const { data } = await axiosInstance.get(`review/reviews/${id}`);
-      setReviews(data);
-      setReviewText("");
-      setReviewRating(5);
-    } catch (err) {
-      console.error("Error creating review:", err);
-    }
-  };
-
-  // 4) Delete a review
-  const handleDeleteReview = async (reviewId: string, authorId: string) => {
-    if (!authUser) {
-      openLogin();
-      return;
-    }
-    if (authUser._id !== authorId) {
-      alert("You can only delete your own reviews.");
-      return;
-    }
-    try {
-      await axiosInstance.delete(`review/delete/${reviewId}`);
-      setReviews((prev) => prev.filter((r) => r._id !== reviewId));
-    } catch (err) {
-      console.error("Error deleting review:", err);
-    }
-  };
-
-  // 5) Like / dislike toggles for review
-  const handleToggleLike = async (reviewId: string) => {
-    if (!authUser) {
+  const handleAddToCart = async(productId: string, quantity: number, size: string) => {
+    if(!authUser){
       openLogin();
       return;
     }
     try {
-      await axiosInstance.post(`review/like/${reviewId}`);
-      setReviews((prev) =>
-        prev.map((r) => {
-          if (r._id !== reviewId) return r;
-          const liked = r.likes.includes(authUser._id);
-          const disliked = r.dislikes.includes(authUser._id);
-          return {
-            ...r,
-            likes: liked
-              ? r.likes.filter((uid) => uid !== authUser._id)
-              : [...r.likes, authUser._id],
-            dislikes: disliked
-              ? r.dislikes.filter((uid) => uid !== authUser._id)
-              : r.dislikes,
-          };
-        })
-      );
-    } catch (err) {
-      console.error("Error toggling like:", err);
+      setCartSubmit(true);
+      await axiosInstance.post("cart/add", {
+        productId: productId,
+        quantity: quantity,
+        size: size
+      })
+      setCartSubmit(false);
+    } catch (error) {
+      setCartSubmit(false);
+      console.error("Error in adding to cart:",error)
     }
-  };
+  }
 
-  const handleToggleDislike = async (reviewId: string) => {
-    if (!authUser) {
-      openLogin();
-      return;
-    }
-    try {
-      await axiosInstance.post(`review/dislike/${reviewId}`);
-      setReviews((prev) =>
-        prev.map((r) => {
-          if (r._id !== reviewId) return r;
-          const liked = r.likes.includes(authUser._id);
-          const disliked = r.dislikes.includes(authUser._id);
-          return {
-            ...r,
-            dislikes: disliked
-              ? r.dislikes.filter((uid) => uid !== authUser._id)
-              : [...r.dislikes, authUser._id],
-            likes: liked ? r.likes.filter((uid) => uid !== authUser._id) : r.likes,
-          };
-        })
-      );
-    } catch (err) {
-      console.error("Error toggling dislike:", err);
-    }
-  };
-
-  // 6) Report a review
   const handleSubmitReport = async (reviewId: string) => {
     if (!authUser) {
       openLogin();
-      
     }
     if (!reportReason.trim()) return;
     try {
@@ -207,93 +120,6 @@ export default function ProductPage() {
     }
   };
 
-  // 7) Submit a comment under a review
-  const handleSubmitComment = async (reviewId: string) => {
-    if (!authUser) {
-      alert("Please log in to comment.");
-      return;
-    }
-    const text = commentTextByReview[reviewId]?.trim();
-    if (!text) return;
-
-    try {
-      await axiosInstance.post("comment/create", { reviewId, text });
-      // Refresh reviews (which include comments)
-      const { data } = await axiosInstance.get(`review/reviews/${id}`);
-      setReviews(data);
-      // Clear the input for this review
-      setCommentTextByReview((prev) => ({ ...prev, [reviewId]: "" }));
-    } catch (err) {
-      console.error("Error creating comment:", err);
-    }
-  };
-
-  // 8) Delete a comment
-  const handleDeleteComment = async (
-    commentId: string,
-    commentAuthorId: string
-  ) => {
-    if (!authUser) {
-      alert("Please log in to delete comments.");
-      return;
-    }
-    if (authUser._id !== commentAuthorId) {
-      alert("You can only delete your own comments.");
-      return;
-    }
-    try {
-      await axiosInstance.delete(`comment/${commentId}`);
-      const { data } = await axiosInstance.get(`review/reviews/${id}`);
-      setReviews(data);
-    } catch (err) {
-      console.error("ERROR DELETING COMMENT:", err);
-    }
-  };
-
-  // 9) Report a comment
-  const handleReportComment = async (commentId: string) => {
-    if (!authUser) {
-      alert("Please log in to report comments.");
-      return;
-    }
-    const reason = prompt("Reason for reporting:");
-    if (!reason?.trim()) return;
-    try {
-      await axiosInstance.post("comment/report", { commentId, reason });
-      alert("Comment reported.");
-    } catch (err) {
-      console.error("Error reporting comment:", err);
-    }
-  };
-
-  // 10) Like/dislike a comment
-  const handleToggleLikeComment = async (commentId: string) => {
-    if (!authUser) {
-      alert("Please log in to like comments.");
-      return;
-    }
-    try {
-      await axiosInstance.post(`comment/like/${commentId}`);
-      const { data } = await axiosInstance.get(`review/reviews/${id}`);
-      setReviews(data);
-    } catch (err) {
-      console.error("Error liking comment:", err);
-    }
-  };
-
-  const handleToggleDislikeComment = async (commentId: string) => {
-    if (!authUser) {
-      alert("Please log in to dislike comments.");
-      return;
-    }
-    try {
-      await axiosInstance.post(`comment/dislike/${commentId}`);
-      const { data } = await axiosInstance.get(`review/reviews/${id}`);
-      setReviews(data);
-    } catch (err) {
-      console.error("Error disliking comment:", err);
-    }
-  };
 
   if (!product)
     return (
@@ -428,22 +254,14 @@ export default function ProductPage() {
               Buy Now
             </motion.button>
             <motion.button
-              onClick={() =>{
-              if(!authUser){
-                openLogin();
-              }
-              else{
-                axiosInstance.post("cart/add", {
-                  productId: product._id,
-                  quantity: 1,
-                  size: selectedSize
-                })
-              }}}
-              className="border border-pink-600 hover:bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition cursor-pointer"
+            disabled={cartSubmit}
+              onClick={() => handleAddToCart(product._id, 1, selectedSize)}
+              className={`border border-pink-600 hover:bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition ${cartSubmit ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
-              Add to Cart
+              {cartSubmit ? "Adding ..." : "Add To Cart"}
+
             </motion.button>
           </div>
         </motion.div>
