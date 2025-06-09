@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { FaStar } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 type Comment = {
   _id: string;
@@ -93,6 +94,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!authUser) {
+      toast.info("Login to Post Reviews")
       openLogin();
       return;
     }
@@ -110,10 +112,12 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       setReviewText("");
       setReviewRating(5);
       setBusyReview(false);
+      toast.success("Review Posted")
       // Reset pagination so that new review appears in the first batch
       setVisibleReviewCount((prev) => Math.max(prev, 3));
     } catch (err) {
       setBusyReview(false);
+      toast.error("Error Posting Review")
       console.error("Error creating review:", err);
     }
   };
@@ -121,18 +125,21 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 3) Delete a review ─────────────────────────────────────────────────────
   const handleDeleteReview = async (reviewId: string, authorId: string) => {
     if (!authUser) {
+      toast.info("Login to Delete Your Review")
       openLogin();
       return;
     }
     if (authUser._id !== authorId) {
-      alert("You can only delete your own reviews.");
+      toast.warn("You Can Only Delete Your Own Review")
       return;
     }
     try {
       await axiosInstance.delete(`review/delete/${reviewId}`);
       setReviews((prev) => prev.filter((r) => r._id !== reviewId));
       setShowDeleteReviewPrompt(null);
+      toast.success("Review Deleted")
     } catch (err) {
+      toast.error("Error Deleting Review")
       console.error("Error deleting review:", err);
     }
   };
@@ -140,6 +147,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 4) Like / dislike a review ─────────────────────────────────────────────
   const handleToggleLike = async (reviewId: string) => {
     if (!authUser) {
+      toast.info("Login to Like Reviews")
       openLogin();
       return;
     }
@@ -162,12 +170,14 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
         })
       );
     } catch (err) {
+      toast.error("Error Liking Review")
       console.error("Error toggling like:", err);
     }
   };
 
   const handleToggleDislike = async (reviewId: string) => {
     if (!authUser) {
+      toast.info("Login to Dislike Review")
       openLogin();
       return;
     }
@@ -188,6 +198,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
         })
       );
     } catch (err) {
+      toast.error("Error Disliking Review")
       console.error("Error toggling dislike:", err);
     }
   };
@@ -195,6 +206,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 5) Report a review ──────────────────────────────────────────────────────
   const handleReportReview = async (reviewId: string) => {
     if (!authUser) {
+      toast.info("Login to Report Review")
       openLogin();
       return;
     }
@@ -205,9 +217,10 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       setShowReportReviewPrompt(null);
       setReportReviewReason("");
       setBusyReport(false);
-      alert("Review reported.");
+      toast.success("Review Reported")
     } catch (err) {
       setBusyReport(false);
+      toast.error("Error Reporting Review")
       console.error("Error reporting review:", err);
     }
   };
@@ -215,6 +228,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 6) Submit a comment under a review ────────────────────────────────────
   const handleSubmitComment = async (reviewId: string) => {
     if (!authUser) {
+      toast.info("Login to Post Comments")
       openLogin();
       return;
     }
@@ -236,6 +250,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       }));
     } catch (err) {
       setBusyComment(false);
+      toast.error("Error Posting Comment")
       console.error("Error creating comment:", err);
     }
   };
@@ -243,11 +258,12 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 7) Delete a comment ───────────────────────────────────────────────────
   const handleDeleteComment = async (commentId: string, commentAuthorId: string) => {
     if (!authUser) {
+      toast.info("Login to Delete Your Comment")
       openLogin();
       return;
     }
     if (authUser._id !== commentAuthorId) {
-      alert("You can only delete your own comments.");
+      toast.warn("You Can Only Delete Your Own Review")
       return;
     }
     try {
@@ -255,7 +271,9 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       const { data } = await axiosInstance.get(`review/reviews/${productId}`);
       setReviews(data);
       setShowDeleteCommentPrompt(null);
+      toast.success("Comment Deleted")
     } catch (err) {
+      toast.error("Error Deleting Comment")
       console.error("Error deleting comment:", err);
     }
   };
@@ -263,6 +281,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 8) Report a comment ────────────────────────────────────────────────────
   const handleReportComment = async (commentId: string) => {
     if (!authUser) {
+      toast.info("Login to Report Comment")
       openLogin();
       return;
     }
@@ -273,9 +292,10 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       setShowReportCommentPrompt(null);
       setReportCommentReason("");
       setBusyReport(false);
-      alert("Comment reported.");
+      toast.success("Comment Reported")
     } catch (err) {
       setBusyReport(false);
+      toast.error("Error Reporting Comment")
       console.error("Error reporting comment:", err);
     }
   };
@@ -283,6 +303,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   // ─── 9) Like / dislike a comment ────────────────────────────────────────────
   const handleToggleLikeComment = async (commentId: string) => {
     if (!authUser) {
+      toast.info("Login to Like Comment")
       openLogin();
       return;
     }
@@ -291,12 +312,14 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       const { data } = await axiosInstance.get(`review/reviews/${productId}`);
       setReviews(data);
     } catch (err) {
+      toast.error("Error Liking Comment")
       console.error("Error liking comment:", err);
     }
   };
 
   const handleToggleDislikeComment = async (commentId: string) => {
     if (!authUser) {
+      toast.info("Login to Dislike Comment")
       openLogin();
       return;
     }
@@ -305,6 +328,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       const { data } = await axiosInstance.get(`review/reviews/${productId}`);
       setReviews(data);
     } catch (err) {
+      toast.error("Error Disliking Comment")
       console.error("Error disliking comment:", err);
     }
   };

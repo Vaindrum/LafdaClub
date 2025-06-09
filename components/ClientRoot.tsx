@@ -38,13 +38,14 @@ export default function ClientRoot({
       {children}
       <ToastContainer
         position="top-right"
-        autoClose={3000}
+        autoClose={2000}
         hideProgressBar={false}
         newestOnTop={true}
         closeOnClick
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        
         theme="dark"
       />
     </>

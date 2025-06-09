@@ -7,6 +7,8 @@ import { axiosInstance } from "@/lib/axios";
 import Loading from "@/components/Loading";
 import { useModalStore } from "@/stores/useModalStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 
 type Product = {
   _id: string;
@@ -36,9 +38,12 @@ export default function CartPage() {
   const [updatingKey, setUpdatingKey] = useState<string | null>(null);
   const [removingKey, setRemovingKey] = useState<string | null>(null);
   const {openLogin} = useModalStore();
+  
+  const [showDeletePrompt, setShowDeletePrompt] = useState<CartItem | null>(null);
 
 useEffect(() => {
     if (!authUser) {
+      toast.info("Login to View Your Cart")
       openLogin();
     }
   }, [authUser]);
@@ -97,7 +102,7 @@ useEffect(() => {
       await fetchCart();
     } catch (err) {
       console.error("Could not update quantity:", err);
-      alert("Failed to update quantity.");
+      toast.error("Failed to Update Quantity")
     } finally {
       setUpdatingKey(null);
     }
@@ -105,7 +110,6 @@ useEffect(() => {
 
   // 4) Handle remove item: calls DELETE /cart/remove
   const handleRemoveItem = async (item: CartItem) => {
-    if (!confirm("Remove this item from cart?")) return;
     const key = getItemKey(item);
     setRemovingKey(key);
 
@@ -117,18 +121,15 @@ useEffect(() => {
           size: item.size,
         },
       });
+      setShowDeletePrompt(null);
+      toast.success("Item Removed From Cart")
       await fetchCart();
     } catch (err) {
       console.error("Could not remove item:", err);
-      alert("Failed to remove item.");
+      toast.error("Failed to Remove Item From Cart")
     } finally {
       setRemovingKey(null);
     }
-  };
-
-  // 5) Proceed to a “checkout” page (cart‐checkout)
-  const handleCheckout = () => {
-    router.push("/checkout");
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -222,7 +223,7 @@ useEffect(() => {
 
                   <button
                     disabled={isRemoving || isUpdating}
-                    onClick={() => handleRemoveItem(item)}
+                    onClick={() => setShowDeletePrompt(item)}
                     className="ml-4 px-3 py-1 bg-red-600 hover:bg-red-500 rounded-xl transition disabled:opacity-50 cursor-pointer"
                     >
                     Remove
@@ -247,6 +248,40 @@ useEffect(() => {
         </button>
       </div>
           </div> 
+
+          {showDeletePrompt && (
+          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+            <motion.div
+              className="bg-gray-900 p-6 rounded-xl w-[90%] max-w-md"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h4 className="text-lg font-semibold mb-3">
+                Confirm Remove Item
+              </h4>
+              <div className="pb-10">
+                Are you sure you want to remove this item from your cart?
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeletePrompt(null);
+                  }}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleRemoveItem(showDeletePrompt)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
+                >
+                  Remove
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
     </div>
   );
 }

@@ -189,7 +189,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {/* Favorite Character */}
             <div className="bg-white/5 p-4 rounded-2xl shadow-md">
-              <h2 className="text-lg font-semibold mb-2">Favorite Character</h2>
+              <h2 className="text-md md:text-lg font-semibold mb-2">Favorite Character</h2>
               <div className="relative">
                 <img
                   src={stats?.favoriteCharacter?.image ?? "/placeholder.jpg"}
@@ -206,7 +206,7 @@ export default function ProfilePage() {
 
             {/* Favorite Weapon */}
             <div className="bg-white/5 p-4 rounded-2xl shadow-md">
-              <h2 className="text-lg font-semibold mb-2">Favorite Weapon</h2>
+              <h2 className="text-md md:text-lg font-semibold mb-2">Favorite Weapon</h2>
               <div className="relative">
                 <img
                   src={stats?.favoriteWeapon?.image ?? "/placeholder.jpg"}
@@ -223,7 +223,7 @@ export default function ProfilePage() {
 
             {/* Favorite Stage */}
             <div className="bg-white/5 p-4 rounded-2xl shadow-md">
-              <h2 className="text-lg font-semibold mb-2">Favorite Stage</h2>
+              <h2 className="text-md md:text-lg font-semibold mb-2">Favorite Stage</h2>
               <div className="relative">
                 <img
                   src={stats?.favoriteStage?.image ?? "/placeholder.jpg"}
@@ -240,7 +240,7 @@ export default function ProfilePage() {
 
             {/* Favorite Announcer */}
             <div className="bg-white/5 p-4 rounded-2xl shadow-md">
-              <h2 className="text-lg font-semibold mb-2">Favorite Announcer</h2>
+              <h2 className="text-md md:text-lg font-semibold mb-2">Favorite Announcer</h2>
               <div className="relative">
                 <img
                   src={stats?.favoriteAnnouncer?.image ?? "/placeholder.jpg"}

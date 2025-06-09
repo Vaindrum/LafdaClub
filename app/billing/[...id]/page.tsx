@@ -7,6 +7,7 @@ import { axiosInstance } from "@/lib/axios";
 import { loadScript } from "@/lib/loadRazorpay";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useModalStore } from "@/stores/useModalStore";
+import { toast } from "react-toastify";
 
 type Product = {
   _id: string;
@@ -70,6 +71,7 @@ export default function BillingPage() {
 
 useEffect(() => {
     if (!authUser) {
+      toast.info("Login to Continue To Payment")
       openLogin();
     }
   }, [authUser]);
@@ -174,7 +176,7 @@ useEffect(() => {
         "https://checkout.razorpay.com/v1/checkout.js"
       );
       if (!isLoaded) {
-        alert("Could not load Razorpay SDK. Are you online?");
+        toast.warn("Could Not Load Razorpay SDK. Are You Online?")
         return;
       }
 
@@ -220,14 +222,14 @@ useEffect(() => {
                 fromCart: isCartFlow,
               });
 
-              alert("Order placed successfully!");
+              toast.success("Order Placed Successfully")
               router.push("/");
             } else {
-              alert("Payment verification failed.");
+              toast.error("Payment Verification Failed")
             }
           } catch (err) {
+            toast.error("Something Went Wrong While Processing Your Payment")
             console.error("Error during verify/submit:", err);
-            alert("Something went wrong while processing your payment.");
           }
         },
       };
@@ -238,7 +240,7 @@ useEffect(() => {
     } catch (err) {
       setBusy(false);
       console.error("Could not create order:", err);
-      alert("Could not create order. Try again.");
+      toast.error("Could Not Create Order. Try Again!")
     }
   };
 
