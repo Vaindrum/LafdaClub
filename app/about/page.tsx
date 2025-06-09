@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { FaTwitter, FaInstagram, FaDiscord } from "react-icons/fa";
+import { FaTwitter, FaInstagram, FaDiscord, FaGithub, FaLinkedin } from "react-icons/fa";
 
 export default function AboutPage() {
   return (
@@ -115,27 +115,48 @@ export default function AboutPage() {
         </motion.div> */}
 
         {/* Socials */}
-        <div className="text-center pb-10">
+        <div className="text-center pb-5 md:pb-0">
           <h3 className="text-xl font-semibold text-pink-300 mb-2">Join the Club</h3>
-          <p className="text-gray-400 mb-4">Follow us on our socials</p>
-          <div className="flex justify-center gap-6">
+          <p className=" text-gray-400 mb-4">
+              Follow us on our socials
+            </p>  
+
+          <div className="flex justify-center gap-6 mb-5">
+
             {[
               // { icon: <FaTwitter/>,  href: "https://twitter.com/lafdaclub" },
-              { icon: <FaInstagram/>,  href: "https://instagram.com/lafdaclub" },
+              { icon: <FaInstagram size={20}/>,  href: "https://instagram.com/lafdaclub" },
               // { icon: <FaDiscord/>,  href: "https://discord.gg/lafdaclub" },
             ].map((social, i) => (
               <Link
-                key={i}
-                href={social.href}
-                target="_blank"
-                className="text-pink-400 hover:text-pink-300 text-lg"
+              key={i}
+              href={social.href}
+              target="_blank"
+              className="text-pink-400 hover:text-pink-300 text-lg"
               >
                 {social.icon}
               </Link>
             ))}
-          </div>
+            </div>
+            <p className="text-gray-400/80 mb-4">(Developer's Shameless Self-Plug)</p>
+          <div className="flex justify-center gap-6">
+            {[
+              { icon: <FaGithub/>,  href: "https://github.com/Vaindrum" },
+              { icon: <FaInstagram/>,  href: "https://instagram.com/vaindrum" },
+              { icon: <FaLinkedin/>,  href: "https://www.linkedin.com/in/vaibhav-raj-610125275/" },
+            ].map((social, i) => (
+              <Link
+              key={i}
+              href={social.href}
+              target="_blank"
+              className="text-pink-400/80 hover:text-pink-300 text-lg"
+              >
+                {social.icon}
+              </Link>
+            ))}
+            </div>
+            </div>
         </div>
-      </div>
     </main>
   );
 }
