@@ -7,6 +7,8 @@ import LoginModal from "./LoginModal";
 import SignupModal from "./SignupModal";
 import LogoutPrompt from "./LogoutPrompt";
 import Loading from "./Loading";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; 
 
 export default function ClientRoot({
   children,
@@ -34,6 +36,17 @@ export default function ClientRoot({
       <SignupModal />
       <LogoutPrompt />
       {children}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </>
   );
 }

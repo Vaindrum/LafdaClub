@@ -7,6 +7,7 @@ import { axiosInstance } from "@/lib/axios";
 import Loading from "@/components/Loading";
 import { useModalStore } from "@/stores/useModalStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { toast } from "react-toastify";
 
 type Product = {
   _id: string;
@@ -40,6 +41,7 @@ export default function MerchPage() {
 
   const handleAddToCart = async (productId: string) => {
     if(!authUser){
+      toast.info("Login to Add to Cart");
       openLogin();
       return;
     }
@@ -47,9 +49,11 @@ export default function MerchPage() {
       setCartSubmit(true);
       await axiosInstance.post("cart/add", { productId, quantity: 1, size: "M" });
       setCartSubmit(false); 
+      toast.success("Added to Cart")
       console.log("Added to Cart:", productId);
     } catch (err) {
       setCartSubmit(false); 
+      toast.error("Failed to Add to Cart")
       console.error("Could not add to cart:", err);
     }
   };
@@ -113,6 +117,7 @@ export default function MerchPage() {
                   <button
                     onClick={() => {
                       if(!authUser){
+                        toast.info("Login to Purchase Item")
                         openLogin();
                       }
                       else{

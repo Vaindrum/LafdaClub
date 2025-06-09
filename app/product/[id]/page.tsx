@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Loading from "@/components/Loading"; 
 import { useModalStore } from "@/stores/useModalStore";
+import { toast } from "react-toastify";
 
 type Product = {
   _id: string;
@@ -87,6 +88,7 @@ export default function ProductPage() {
 
   const handleAddToCart = async(productId: string, quantity: number, size: string) => {
     if(!authUser){
+      toast.info("Login to Add To Cart")
       openLogin();
       return;
     }
@@ -98,8 +100,10 @@ export default function ProductPage() {
         size: size
       })
       setCartSubmit(false);
+      toast.success("Added to Cart")
     } catch (error) {
       setCartSubmit(false);
+      toast.error("Failed to Add To Cart")
       console.error("Error in adding to cart:",error)
     }
   }
@@ -241,6 +245,7 @@ export default function ProductPage() {
             <motion.button
               onClick={() => {
                 if(!authUser){
+                  toast.info("Login to Purchase Item")
                   openLogin();
                 }
                 else{

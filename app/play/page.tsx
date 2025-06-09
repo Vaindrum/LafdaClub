@@ -12,6 +12,7 @@ import { FaCrown } from "react-icons/fa";
 
 // ─── IMPORT FRAMER MOTION ─────────────────────────────────────────────────────
 import { motion, Variants } from "framer-motion";
+import { toast } from "react-toastify";
 
 type GameData = {
   characters: { _id: string; name: string; image: string }[];
@@ -106,7 +107,7 @@ export default function PlayGamePage() {
 
   const handleBattleStart = async () => {
     if (!p1 || !p2 || !w1 || !w2 || !stage || !announcer) {
-      alert("Please select all options");
+      toast.info("Please select all the options")
       return;
     }
     try {
@@ -124,9 +125,10 @@ export default function PlayGamePage() {
       sectionRef.current?.scrollIntoView({ behavior: "smooth" });
       sectionRefPC.current?.scrollIntoView({ behavior: "smooth" });
       setBusy(false);
+      toast.success("Battle Simulated")
     } catch (err) {
       setBusy(false);
-      alert("Battle failed to start.");
+      toast.error("Failed to Simulate Battle")
       console.error(err);
     }
   };

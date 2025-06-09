@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useModalStore } from "@/stores/useModalStore";
+import { toast } from "react-toastify";
 
 type OrderItem = {
   product: {
@@ -38,6 +39,7 @@ export default function OrderPage() {
 
 useEffect(() => {
     if (!authUser) {
+      toast.info("Login to view your order")
       openLogin();
     }
   }, [authUser]);

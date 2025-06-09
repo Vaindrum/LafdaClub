@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useModalStore } from "@/stores/useModalStore";
+import { toast } from "react-toastify";
 
 type OrderItem = {
   product: {
@@ -37,6 +38,7 @@ export default function OrdersPage() {
 
 useEffect(() => {
     if (!authUser) {
+      toast.info("Login to view your orders");
       openLogin();
     }
   }, [authUser]);

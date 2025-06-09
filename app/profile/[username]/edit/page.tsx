@@ -7,6 +7,7 @@ import { axiosInstance } from "@/lib/axios";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useModalStore } from "@/stores/useModalStore";
+import { toast } from "react-toastify";
 
 type UserProfile = {
   username: string;
@@ -36,6 +37,7 @@ export default function EditProfilePage() {
 
 useEffect(() => {
     if (!authUser) {
+      toast.info("Login to Edit Your Profile")
       openLogin();
     }
   }, [authUser]);
@@ -62,6 +64,7 @@ useEffect(() => {
         if (authUser?.username !== data.username) {
           // If the route username doesn't match authenticated user, redirect to their profile
           router.replace(`/profile/${routeUsername}`);
+          toast.warn("You can only edit your own profile!")
           return;
         }
         setFormUsername(data.username);
@@ -120,8 +123,10 @@ useEffect(() => {
       });
 
       // On success, redirect to updated profile
+      toast.success("Profile Updated")
       router.push(`/profile/${res.data.username}`);
     } catch (err: any) {
+      toast.error("Error Updating Profile");
       console.error("Error saving profile:", err);
       setErrorSave(err.response?.data?.message || "Failed to save profile.");
     } finally {

@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 type Comment = {
   _id: string;
@@ -68,19 +69,21 @@ export default function ReviewPage() {
   // Delete review
   const handleDeleteReview = async () => {
     if (!authUser) {
+      toast.info("Login to Delete Your Review")
       openLogin();
       return;
     }
     if (authUser._id !== review?.user._id) {
-      alert("You can only delete your own review.");
+      toast.warn("You Can Only Delete Your Own Review")
       return;
     }
     try {
       await axiosInstance.delete(`review/delete/${id}`);
       setShowDeleteReviewPrompt(false);
-      alert("Review deleted.");
+      toast.success("Review Deleted")
       router.push("/"); // navigate away after deletion
     } catch (err) {
+      toast.error("Failed to Delete Review")
       console.error("Error deleting review:", err);
     }
   };
@@ -88,6 +91,7 @@ export default function ReviewPage() {
   // Report review
   const handleReportReview = async () => {
     if (!authUser) {
+      toast.info("Login to Report Review")
       openLogin();
       return;
     }
@@ -99,8 +103,9 @@ export default function ReviewPage() {
       });
       setShowReportReviewPrompt(false);
       setReportReviewReason("");
-      alert("Review reported.");
+      toast.success("Review Reported")
     } catch (err) {
+      toast.error("Failed to Report Review")
       console.error("Error reporting review:", err);
     }
   };
@@ -108,6 +113,7 @@ export default function ReviewPage() {
   // Like / Dislike review
   const handleToggleLikeReview = async () => {
     if (!authUser) {
+      toast.info("Login to Like Reviews")
       openLogin();
       return;
     }
@@ -115,12 +121,14 @@ export default function ReviewPage() {
       await axiosInstance.post(`review/like/${id}`);
       fetchReview();
     } catch (err) {
+      toast.error("Error Liking Review")
       console.error("Error toggling like:", err);
     }
   };
 
   const handleToggleDislikeReview = async () => {
     if (!authUser) {
+      toast.info("Login to Dislike Reviews")
       openLogin();
       return;
     }
@@ -128,6 +136,7 @@ export default function ReviewPage() {
       await axiosInstance.post(`review/dislike/${id}`);
       fetchReview();
     } catch (err) {
+      toast.error("Error Disliking Review")
       console.error("Error toggling dislike:", err);
     }
   };
@@ -135,6 +144,7 @@ export default function ReviewPage() {
   // Add a comment
   const handleSubmitComment = async () => {
     if (!authUser) {
+      toast.info("Login to Post Comments")
       openLogin();
       return;
     }
@@ -145,8 +155,10 @@ export default function ReviewPage() {
         text: commentText,
       });
       setCommentText("");
+      toast.success("Comment Posted")
       fetchReview();
     } catch (err) {
+      toast.error("Failed to Post Comment")
       console.error("Error adding comment:", err);
     }
   };
@@ -154,19 +166,21 @@ export default function ReviewPage() {
   // Delete a comment
    const handleDeleteComment = async (commentId: string, authorId: string) => {
     if (!authUser) {
+      toast.info("Login to Delete Your Comment")
       openLogin();
       return;
     }
     if (authUser._id !== authorId) {
-      alert("You can only delete your own comment.");
+      toast.warn("You Can Only Delete Your Own Comment!")
       return;
     }
     try {
       await axiosInstance.delete(`comment/delete/${commentId}`);
       setShowDeleteCommentPrompt(null);
-      alert("Comment deleted.");
+      toast.success("Comment Deleted")
       fetchReview();
     } catch (err) {
+      toast.error("Failed to Delete Comment")
       console.error("Error deleting comment:", err);
     }
   };
@@ -174,6 +188,7 @@ export default function ReviewPage() {
   // Report a comment
    const handleReportComment = async (commentId: string) => {
     if (!authUser) {
+      toast.info("Login to Report Comment")
       openLogin();
       return;
     }
@@ -185,8 +200,9 @@ export default function ReviewPage() {
       });
       setShowReportCommentPrompt(null);
       setReportCommentReason("");
-      alert("Comment reported.");
+      toast.success("Comment Reported")
     } catch (err) {
+      toast.error("Failed to Report Comment")
       console.error("Error reporting comment:", err);
     }
   };
@@ -195,6 +211,7 @@ export default function ReviewPage() {
   // Like / Dislike comment
   const handleToggleLikeComment = async (commentId: string) => {
     if (!authUser) {
+      toast.info("Login to Like Comments")
       openLogin();
       return;
     }
@@ -202,12 +219,14 @@ export default function ReviewPage() {
       await axiosInstance.post(`comment/like/${commentId}`);
       fetchReview();
     } catch (err) {
+      toast.error("Error Liking Comment")
       console.error("Error liking comment:", err);
     }
   };
 
   const handleToggleDislikeComment = async (commentId: string) => {
     if (!authUser) {
+      toast.info("Login to Dislike Comments")
       openLogin();
       return;
     }
@@ -215,6 +234,7 @@ export default function ReviewPage() {
       await axiosInstance.post(`comment/dislike/${commentId}`);
       fetchReview();
     } catch (err) {
+      toast.error("Error Disliking Comments")
       console.error("Error disliking comment:", err);
     }
   };
