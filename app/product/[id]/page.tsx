@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/stores/useAuthStore";
-import StarRating from "@/components/StarRating";
 import ReviewSection from "@/components/ReviewSection";
 import { FiX } from "react-icons/fi";
 import { motion } from "framer-motion";

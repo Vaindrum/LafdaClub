@@ -69,6 +69,10 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
   const [reportReviewReason, setReportReviewReason] = useState("");
   const [reportCommentReason, setReportCommentReason] = useState("");
 
+  const [busyReview, setBusyReview] = useState(false);
+  const [busyComment, setBusyComment] = useState(false);
+  const [busyReport, setBusyReport] = useState(false);
+
 
   // ─── 1) Fetch all reviews for this product ─────────────────────────────────
   useEffect(() => {
@@ -95,6 +99,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
     if (!reviewText.trim()) return;
 
     try {
+      setBusyReview(true);
       await axiosInstance.post("review/create", {
         productId,
         text: reviewText,
@@ -104,9 +109,11 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
       setReviews(data);
       setReviewText("");
       setReviewRating(5);
+      setBusyReview(false);
       // Reset pagination so that new review appears in the first batch
       setVisibleReviewCount((prev) => Math.max(prev, 3));
     } catch (err) {
+      setBusyReview(false);
       console.error("Error creating review:", err);
     }
   };
@@ -193,11 +200,14 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
     }
     if (!reportReviewReason.trim()) return;
     try {
+      setBusyReport(true);
       await axiosInstance.post("review/report", { reviewId, reason: reportReviewReason });
       setShowReportReviewPrompt(null);
       setReportReviewReason("");
+      setBusyReport(false);
       alert("Review reported.");
     } catch (err) {
+      setBusyReport(false);
       console.error("Error reporting review:", err);
     }
   };
@@ -212,9 +222,11 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
     if (!text) return;
 
     try {
+      setBusyComment(true);
       await axiosInstance.post("comment/create", { reviewId, text });
       const { data } = await axiosInstance.get(`review/reviews/${productId}`);
       setReviews(data);
+      setBusyComment(false);
       setCommentTextByReview((prev) => ({ ...prev, [reviewId]: "" }));
       // Ensure comments stay visible after adding
       setCommentsVisible((prev) => ({ ...prev, [reviewId]: true }));
@@ -223,6 +235,7 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
         [reviewId]: Math.max(prev[reviewId] || 0, 3),
       }));
     } catch (err) {
+      setBusyComment(false);
       console.error("Error creating comment:", err);
     }
   };
@@ -255,11 +268,14 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
     }
     if (!reportCommentReason.trim()) return;
     try {
+      setBusyReport(true);
       await axiosInstance.post("comment/report", { commentId, reason: reportCommentReason });
       setShowReportCommentPrompt(null);
       setReportCommentReason("");
+      setBusyReport(false);
       alert("Comment reported.");
     } catch (err) {
+      setBusyReport(false);
       console.error("Error reporting comment:", err);
     }
   };
@@ -516,10 +532,11 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                         className="flex-1 bg-gray-800 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                       />
                       <motion.button
+                      disabled={busyComment}
                         onClick={() => handleSubmitComment(r._id)}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        className="text-pink-500 hover:text-pink-400 transition cursor-pointer"
+                        className={`text-pink-500 hover:text-pink-400 transition ${busyComment ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       >
                         <FiSend size={20} />
                       </motion.button>
@@ -578,10 +595,11 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
               />
             </div>
             <motion.button
+            disabled={busyReview}
               type="submit"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold transition cursor-pointer"
+              className={`bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold transition ${busyReview ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               Submit Review
             </motion.button>
@@ -621,12 +639,13 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                 Cancel
               </button>
               <motion.button
+              disabled={busyReport}
                 onClick={() => {
                   handleReportReview(showReportReviewPrompt.reviewId);
                 }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
+                className={`px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition ${busyReport ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 Submit Report
               </motion.button>
@@ -659,12 +678,13 @@ export default function ReviewSection({ productId, authUser }: ReviewSectionProp
                 Cancel
               </button>
               <motion.button
+              disabled={busyReport}
                 onClick={() => {
                   handleReportComment(showReportCommentPrompt.commentId);
                 }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition cursor-pointer"
+                className={`px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition ${busyReport ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 Submit Report
               </motion.button>

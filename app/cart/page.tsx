@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import Loading from "@/components/Loading";
+import { useModalStore } from "@/stores/useModalStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 type Product = {
   _id: string;
@@ -23,6 +25,8 @@ type CartItem = {
 export default function CartPage() {
   const router = useRouter();
 
+  const {authUser} = useAuthStore();
+
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +35,23 @@ export default function CartPage() {
   // We’ll store strings like "productId–size" for the item being updated/removed.
   const [updatingKey, setUpdatingKey] = useState<string | null>(null);
   const [removingKey, setRemovingKey] = useState<string | null>(null);
+  const {openLogin} = useModalStore();
+
+useEffect(() => {
+    if (!authUser) {
+      openLogin();
+    }
+  }, [authUser]);
+
+  if (!authUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-lg bg-gray-900 text-white gap-2">
+        <p>Please</p>
+          <p className="text-pink-500 hover:text-pink-400 cursor-pointer" onClick={() => openLogin()}>log in</p>
+            <p>to continue...</p>
+      </div>
+    );
+  }
 
   // 1) Fetch the user’s cart
   const fetchCart = async () => {
@@ -118,6 +139,7 @@ export default function CartPage() {
       </div>
     );
   }
+
 
   if (error) {
     return (

@@ -6,6 +6,7 @@ import { useRouter, useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useModalStore } from "@/stores/useModalStore";
 
 type UserProfile = {
   username: string;
@@ -31,6 +32,24 @@ export default function EditProfilePage() {
   const [saving, setSaving] = useState(false);
   const [errorSave, setErrorSave] = useState<string | null>(null);
 
+  const {openLogin} = useModalStore();
+
+useEffect(() => {
+    if (!authUser) {
+      openLogin();
+    }
+  }, [authUser]);
+
+  if (!authUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-lg bg-gray-900 text-white gap-2">
+        <p>Please</p>
+          <p className="text-pink-500 hover:text-pink-400 cursor-pointer" onClick={() => openLogin()}>log in</p>
+            <p>to continue...</p>
+      </div>
+    );
+  }
+
   // 1) Fetch logged-in user (“me”)
   useEffect(() => {
     const fetchAuth = async () => {
@@ -38,8 +57,8 @@ export default function EditProfilePage() {
       try {
         const { data } = await axiosInstance.get(`user/${routeUsername}`);
         // Expect { username, email, bio, profilePic }
-        console.log(authUser?.username);
-        console.log(data.username);
+        // console.log(authUser?.username);
+        // console.log(data.username);
         if (authUser?.username !== data.username) {
           // If the route username doesn't match authenticated user, redirect to their profile
           router.replace(`/profile/${routeUsername}`);
@@ -127,10 +146,7 @@ export default function EditProfilePage() {
     );
   }
 
-  if (!authUser) {
-    // Should never happen, because we redirect if unauthenticated or mismatch
-    return null;
-  }
+  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white px-6 py-12">

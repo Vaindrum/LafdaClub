@@ -5,6 +5,8 @@ import { axiosInstance } from "@/lib/axios";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useModalStore } from "@/stores/useModalStore";
 
 type OrderItem = {
   product: {
@@ -30,6 +32,24 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const {authUser} = useAuthStore();
+  const {openLogin} = useModalStore();
+
+useEffect(() => {
+    if (!authUser) {
+      openLogin();
+    }
+  }, [authUser]);
+
+  if (!authUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-lg bg-gray-900 text-white gap-2">
+        <p>Please</p>
+          <p className="text-pink-500 hover:text-pink-400 cursor-pointer" onClick={() => openLogin()}>log in</p>
+            <p>to continue...</p>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const fetchOrders = async () => {

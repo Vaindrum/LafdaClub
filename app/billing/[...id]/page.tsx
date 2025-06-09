@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import { loadScript } from "@/lib/loadRazorpay";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useModalStore } from "@/stores/useModalStore";
 
 type Product = {
   _id: string;
@@ -34,6 +36,8 @@ export default function BillingPage() {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [pincode, setPincode] = useState("");
+  const {authUser} = useAuthStore();
+  const {openLogin} = useModalStore();
 
   // ──────────────────────────────────────────────────────────────────────────
   // State specific to “direct‐buy”:
@@ -63,6 +67,24 @@ export default function BillingPage() {
   // ──────────────────────────────────────────────────────────────────────────
   // 1) If direct‐buy, fetch that one product by ID
   // ──────────────────────────────────────────────────────────────────────────
+
+useEffect(() => {
+    if (!authUser) {
+      openLogin();
+    }
+  }, [authUser]);
+
+  if (!authUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-lg bg-gray-900 text-white gap-2">
+        <p>Please</p>
+          <p className="text-pink-500 hover:text-pink-400 cursor-pointer" onClick={() => openLogin()}>log in</p>
+            <p>to continue...</p>
+      </div>
+    );
+  }
+
+
   useEffect(() => {
     if (!isCartFlow) {
       const productId = slug[0];
