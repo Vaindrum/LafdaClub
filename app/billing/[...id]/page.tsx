@@ -34,6 +34,7 @@ export default function BillingPage() {
   // Shared state for shipping form:
   // ──────────────────────────────────────────────────────────────────────────
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [pincode, setPincode] = useState("");
@@ -193,7 +194,7 @@ useEffect(() => {
         order_id: razorpayOrder.id,
         prefill: {
           name: name,
-          email: "user@example.com",
+          email: email,
           contact: phone,
         },
         theme: { color: "#f472b6" },
@@ -371,6 +372,17 @@ useEffect(() => {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-gray-700 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 rounded-xl bg-gray-700 focus:outline-none"
             />
           </div>
