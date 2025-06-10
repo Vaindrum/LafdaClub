@@ -186,11 +186,11 @@ useEffect(() => {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        name: "Your Store Name",
+        name: "Lafda Club",
         description: isCartFlow
           ? `Cart (${cartItems.length} items)—Total ₹${razorpayOrder.amount / 100}`
           : product!.name,
-        image: "/your-logo.png",
+        image: "/LFDC.png",
         order_id: razorpayOrder.id,
         prefill: {
           name: name,
